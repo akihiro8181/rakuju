@@ -1,0 +1,50 @@
+version: "3.8"
+volumes:
+    php-fpm-socket:
+    db-store:
+services:
+    app:
+        build: ./infra/docker/php
+        container_name: php
+        volumes:
+            - php-fpm-socket:/var/run/php-fpm
+            - ./app/:/var/www
+
+    web:
+        build: ./infra/docker/nginx
+        container_name: nginx
+        ports:
+            - 80:80
+        volumes:
+            - php-fpm-socket:/var/run/php-fpm
+            - ./app/:/var/www
+
+    db:
+        build: ./infra/docker/mysql
+        container_name: mysql
+        ports:
+            - 3306:3306
+        volumes:
+            - db-store:/var/lib/mysql
+
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mysql
+            - PMA_USER=docker
+            - PMA_PASSWORD=docker
+        links:
+            - db
+        ports:
+            - 8080:80
+        volumes:
+            - /sessions
+
+
+        
+
+
+
