@@ -16,7 +16,7 @@ class CreateTutorsTable extends Migration
         Schema::create('tutors', function (Blueprint $table) {
             $table->id();
             $table->foreignId('in_charge_id');
-            $table->foreignId('teacher_id');
+            $table->foreignId('user_id');
             $table->timestamps();
         });
     }
