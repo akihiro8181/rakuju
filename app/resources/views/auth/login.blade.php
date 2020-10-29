@@ -16,12 +16,17 @@
             @csrf
 
             <div>
-                <x-jet-label for="email" value="{{ __('Email') }}" />
-                <x-jet-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                <x-jet-label for="school_id" value="{{ __('School ID') }}" />
+                <x-jet-input id="school_id" class="block mt-1 w-full" type="text" name="school_id" :value="old('school_id')" required autofocus />
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="password" value="{{ __('Password') }}" />
+                <x-jet-label for="login_number" value="{{ __('Login Number') }}" />
+                <x-jet-input id="login_number" class="block mt-1 w-full" type="text" name="login_number" :value="old('login_number')" required autofocus />
+            </div>
+
+            <div class="mt-4">
+                <x-jet-label for="password" value="{{ __('Password') }}" /> 8桁以上(test)
                 <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
             </div>
 

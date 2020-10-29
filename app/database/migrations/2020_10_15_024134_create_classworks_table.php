@@ -16,6 +16,7 @@ class CreateClassworksTable extends Migration
         Schema::create('classworks', function (Blueprint $table) {
             $table->id();
             $table->string("name");
+            $table->foreignId('school_id');
             $table->timestamps();
         });
     }

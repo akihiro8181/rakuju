@@ -15,7 +15,7 @@ class CreateAttendancesTable extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id');
+            $table->foreignId('user_id');
             $table->foreignId('in_charge_id');
             $table->timestamps();
         });

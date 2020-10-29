@@ -17,7 +17,6 @@ class CreateSchoolsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('workspace_url');
-            $table->string('table_name');
             $table->timestamps();
         });
     }
