@@ -15,7 +15,7 @@ class CreateInChargesTable extends Migration
     {
         Schema::create('in_charges', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_id');
+            $table->foreignId('classwork_id');
             $table->foreignId('teacher_id');
             $table->timestamps();
         });
