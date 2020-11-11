@@ -15,5 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         \App\Models\School::factory()->create();
+        \App\Models\InCharge::factory()->create();
+        \App\Models\Attendance::factory()->create();
+        \App\Models\Classwork::factory()->create();
+        // \App\Models\ClassworkTask::factory()->create();
     }
 }

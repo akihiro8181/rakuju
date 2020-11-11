@@ -15,6 +15,22 @@ class InCharge extends Model
      * @var array
      */
     protected $fillable = [
-        'teacher_id',
+        'teacher_id', 'classwork_id',
     ];
+
+    /**
+     * 授業情報を取得 
+     */
+    public function classwork()
+    {
+        return $this->belongsTo('App\Models\Classwork');
+    }
+
+    /**
+     * 授業の課題を取得 
+     */
+    public function classwork_tasks()
+    {
+        return $this->hasMany('App\Models\ClassworkTask');
+    }
 }

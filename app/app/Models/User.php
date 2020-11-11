@@ -49,6 +49,17 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    /**
+     * 受講中の授業を取得
+     */
+    public function attendances()
+    {
+        return $this->belongsToMany('App\Models\InCharge', 'attendances');
+    }
+
+    /**
+     * 所属している学校の情報を取得
+     */
     public function school()
     {
         return $this->belongsTo('App\Models\School');
