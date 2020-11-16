@@ -10,8 +10,7 @@
                         classwork.teacher.name: {{$page.in_charge.teacher.name}}
                     </h2>
                     <h2 class="p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight">
-                        classwork.tutors.name: {{$page.in_charge.teacher.name}}
-                        <span v-for="tutor in $page.in_charge.tutors" :key="tutor.id"> {{tutor.name}}</span>
+                        classwork.tutors.name: {{$page.in_charge.teacher.name}}<span v-for="tutor in $page.in_charge.tutors" :key="tutor.id">, {{tutor.name}}</span>
                     </h2>
                     <div v-if="$page.in_charge.classwork_tasks == []">
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
@@ -29,7 +28,9 @@
                                         {{content.text}}
                                     </div>
                                     <div v-else-if="content.type == 'link'">
-                                        <a href="" class="underline text-blue-600 visited:text-purple-600">{{content.text}}</a>
+                                        <a :href="content.url" class="underline text-blue-600 visited:text-purple-600">
+                                            {{content.text}}
+                                        </a>
                                     </div>
                                 </div>
                             </div>

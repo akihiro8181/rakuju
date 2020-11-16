@@ -3609,6 +3609,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -27552,12 +27553,11 @@ var render = function() {
               [
                 _vm._v(
                   "\n                    classwork.tutors.name: " +
-                    _vm._s(_vm.$page.in_charge.teacher.name) +
-                    "\n                    "
+                    _vm._s(_vm.$page.in_charge.teacher.name)
                 ),
                 _vm._l(_vm.$page.in_charge.tutors, function(tutor) {
                   return _c("span", { key: tutor.id }, [
-                    _vm._v(" " + _vm._s(tutor.name))
+                    _vm._v(", " + _vm._s(tutor.name))
                   ])
                 })
               ],
@@ -27625,9 +27625,15 @@ var render = function() {
                                       {
                                         staticClass:
                                           "underline text-blue-600 visited:text-purple-600",
-                                        attrs: { href: "" }
+                                        attrs: { href: content.url }
                                       },
-                                      [_vm._v(_vm._s(content.text))]
+                                      [
+                                        _vm._v(
+                                          "\n                                        " +
+                                            _vm._s(content.text) +
+                                            "\n                                    "
+                                        )
+                                      ]
                                     )
                                   ])
                                 : _vm._e()

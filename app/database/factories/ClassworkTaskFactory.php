@@ -24,11 +24,11 @@ class ClassworkTaskFactory extends Factory
     {
         // 必要なデータ：名前（name）、テキスト(json.text)、リンク(json.text, json.url)
         // $c = new ClassworkTask
-        // $c->in_charge_id = 1
+        // $c->in_charge_id = InCharge::inRandomOrder()->first()->id
         // $c->name = "Task01"
         // $c->deadline = now()
         // $c->sort_num = 0
-        // $c->contents = [['type'=>'text','text'=>'test topic', 'sort_num'=>0],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>1],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>2],['type'=>'text','text'=>'test topic', 'sort_num'=>3]]
+        // $c->contents = [['type'=>'text','text'=>'test topic', 'sort_num'=>0],['type'=>'link','text'=>'test link','url'=>'http://localhost','sort_num'=>1],['type'=>'link','text'=>'test link','url'=>'http://localhost/dashboard','sort_num'=>2],['type'=>'text','text'=>'test topic', 'sort_num'=>3]]
         // $c->save()
         $json_data = [
             [
