@@ -28,7 +28,8 @@ class ClassworkTaskFactory extends Factory
         // $c->name = "Task01"
         // $c->deadline = now()
         // $c->sort_num = 0
-        // $c->content = [['type'=>'text','text'=>'test topic', 'sort_num'=>0],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>1]]
+        // $c->contents = [['type'=>'text','text'=>'test topic', 'sort_num'=>0],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>1],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>2],['type'=>'text','text'=>'test topic', 'sort_num'=>3]]
+        // $c->save()
         $json_data = [
             [
                 'type' => 'text',
