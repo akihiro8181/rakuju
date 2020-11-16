@@ -3609,8 +3609,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -27534,18 +27532,39 @@ var render = function() {
               "h2",
               {
                 staticClass:
-                  "p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight"
+                  "p-6 sm:px-20 bg-white font-semibold text-xl text-gray-800 leading-tight"
               },
               [
                 _vm._v(
-                  "\n                    classwork.teacher_id: " +
-                    _vm._s(_vm.$page.in_charge.teacher_id) +
+                  "\n                    classwork.teacher.name: " +
+                    _vm._s(_vm.$page.in_charge.teacher.name) +
                     "\n                "
                 )
               ]
             ),
             _vm._v(" "),
-            _vm.$page.in_charge.classwork_tasks == null
+            _c(
+              "h2",
+              {
+                staticClass:
+                  "p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight"
+              },
+              [
+                _vm._v(
+                  "\n                    classwork.tutors.name: " +
+                    _vm._s(_vm.$page.in_charge.teacher.name) +
+                    "\n                    "
+                ),
+                _vm._l(_vm.$page.in_charge.tutors, function(tutor) {
+                  return _c("span", { key: tutor.id }, [
+                    _vm._v(" " + _vm._s(tutor.name))
+                  ])
+                })
+              ],
+              2
+            ),
+            _vm._v(" "),
+            _vm.$page.in_charge.classwork_tasks == []
               ? _c("div", [
                   _c(
                     "div",
@@ -27591,14 +27610,6 @@ var render = function() {
                           { staticClass: "mt-6 text-gray-500" },
                           _vm._l(classwork_task.contents, function(content) {
                             return _c("div", { key: content.sort_num }, [
-                              _c("div", { staticClass: "mt-6" }, [
-                                _vm._v(
-                                  "\n                                    " +
-                                    _vm._s(content.type) +
-                                    "\n                                "
-                                )
-                              ]),
-                              _vm._v(" "),
                               content.type == "text"
                                 ? _c("div", [
                                     _vm._v(
@@ -27623,15 +27634,7 @@ var render = function() {
                             ])
                           }),
                           0
-                        ),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "mt-6 text-gray-500" }, [
-                          _vm._v(
-                            "\n                            classwork_task: " +
-                              _vm._s(classwork_task) +
-                              "\n                        "
-                          )
-                        ])
+                        )
                       ]
                     )
                   ])

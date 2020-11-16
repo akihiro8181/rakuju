@@ -19,6 +19,8 @@ class ShowClassworkTask extends Controller
     {
         $in_charge->classwork;          // 授業情報を取得
         $in_charge->classwork_tasks;    // 課題情報を取得
+        $in_charge->teacher;            // 課題情報を取得
+        $in_charge->tutors;             // 課題情報を取得
 
         return Inertia::render('DataTest/ClassworkTaskView', [
             'in_charge' => $in_charge,  // 授業情報
