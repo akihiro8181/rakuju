@@ -20,7 +20,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', ShowDashboard::class)->name('dashboard');
-Route::middleware(['auth:sanctum', 'verified'])->get('/classwork-task/{in_charge}', ShowClassworkTask::class)->name('classwork-task')->whereUuid('in_charge');
+Route::middleware(['auth:sanctum', 'verified'])->get('/classwork-task/{in_charge}', ShowClassworkTask::class)->name('classwork-task')->where('in_charge', '[0-9]+');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/datatest', function () {
     return Inertia\Inertia::render('DataTest/DataTest');
