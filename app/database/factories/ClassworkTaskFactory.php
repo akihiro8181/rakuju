@@ -23,22 +23,32 @@ class ClassworkTaskFactory extends Factory
     public function definition()
     {
         // 必要なデータ：名前（name）、テキスト(json.text)、リンク(json.text, json.url)
-        // $json_data = [
-        //     [
-        //         'text' => 'test topic',
-        //         'sort_num' => 0,
-        //     ], 
-        //     [
-        //         'text' => 'test text',
-        //         'sort_num' => 1,
-        //     ], 
-        // ];
+        // $c = new ClassworkTask
+        // $c->in_charge_id = 1
+        // $c->name = "Task01"
+        // $c->deadline = now()
+        // $c->sort_num = 0
+        // $c->content = [['type'=>'text','text'=>'test topic', 'sort_num'=>0],['type'=>'link','text'=>'test link','url'=>'localhost','sort_num'=>1]]
+        $json_data = [
+            [
+                'type' => 'text',
+                'text' => 'test topic',
+                'sort_num' => 0,
+            ], 
+            [
+                'type' => 'link',
+                'text' => 'test text',
+                'url' => 'localhost',
+                'sort_num' => 1,
+            ],
+        ];
 
-        // return [
-        //     'in_charge_id' => InCharge::inRandomOrder()->first()->id,
-        //     'name' => $this->faker->words,
-        //     'sort_num' => $this->faker->unique()->randomDigitNotNull,
-        //     'content' => $json_data,
-        // ];
+        return [
+            'in_charge_id' => InCharge::inRandomOrder()->first()->id,
+            'name' => $this->faker->words,
+            'deadline' => now(),
+            'sort_num' => $this->faker->unique()->randomDigitNotNull,
+            'contents' => $json_data,
+        ];
     }
 }

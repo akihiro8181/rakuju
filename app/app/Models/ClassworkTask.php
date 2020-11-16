@@ -15,10 +15,10 @@ class ClassworkTask extends Model
      * @var array
      */
     protected $fillable = [
-        'in_charge_id', 'name', 'deadline', 'sort_num', 'content',
+        'in_charge_id', 'name', 'deadline', 'sort_num', 'contents',
     ];
 
     protected $casts = [
-        'content' => 'json',
+        'contents' => 'json',
     ];
 }

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Classwork;
+use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClassworkFactory extends Factory
@@ -23,7 +24,7 @@ class ClassworkFactory extends Factory
     {
         return [
             'name' => $this->faker->word,
-            'school_id' => 1,
+            'school_id' => School::inRandomOrder()->first()->id,
         ];
     }
 }

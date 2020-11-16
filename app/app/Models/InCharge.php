@@ -33,4 +33,28 @@ class InCharge extends Model
     {
         return $this->hasMany('App\Models\ClassworkTask');
     }
+
+    /**
+     * 授業の課題を取得 
+     */
+    public function teacher()
+    {
+        return $this->belongsTo('App\Models\User', 'teacher_id');
+    }
+
+    /**
+     * 授業の課題を取得 
+     */
+    public function students()
+    {
+        return $this->belongsToMany('App\Models\User', 'attendances');
+    }
+
+    /**
+     * 授業の課題を取得 
+     */
+    public function tutors()
+    {
+        return $this->belongsToMany('App\Models\User', 'tutors');
+    }
 }

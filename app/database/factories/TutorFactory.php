@@ -2,19 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\Attendance;
+use App\Models\Tutor;
 use App\Models\User;
 use App\Models\InCharge;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class AttendanceFactory extends Factory
+class TutorFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Attendance::class;
+    protected $model = Tutor::class;
 
     /**
      * Define the model's default state.

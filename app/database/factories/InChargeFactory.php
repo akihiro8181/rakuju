@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\InCharge;
+use App\Models\Classwork;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class InChargeFactory extends Factory
@@ -22,8 +24,8 @@ class InChargeFactory extends Factory
     public function definition()
     {
         return [
-            'classwork_id' => 1,
-            'teacher_id' => 2,
+            'classwork_id' => Classwork::inRandomOrder()->first()->id,
+            'teacher_id' => User::inRandomOrder()->first()->id,
         ];
     }
 }
