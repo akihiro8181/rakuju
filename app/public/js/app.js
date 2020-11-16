@@ -3589,6 +3589,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -27497,7 +27519,7 @@ var render = function() {
               "h2",
               {
                 staticClass:
-                  "p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight"
+                  "p-6 sm:px-20 bg-white font-semibold text-xl text-gray-800 leading-tight"
               },
               [
                 _vm._v(
@@ -27509,37 +27531,130 @@ var render = function() {
             ),
             _vm._v(" "),
             _c(
-              "div",
+              "h2",
+              {
+                staticClass:
+                  "p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight"
+              },
+              [
+                _vm._v(
+                  "\n                    classwork.teacher_id: " +
+                    _vm._s(_vm.$page.in_charge.teacher_id) +
+                    "\n                "
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _vm.$page.in_charge.classwork_tasks == null
+              ? _c("div", [
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "p-6 sm:px-20 bg-white border-b border-gray-200"
+                    },
+                    [
+                      _vm._v(
+                        "\n                        $page.in_charge.classwork_tasksにデータが存在しません\n                    "
+                      )
+                    ]
+                  )
+                ])
+              : _vm._l(_vm.$page.in_charge.classwork_tasks, function(
+                  classwork_task
+                ) {
+                  return _c("div", { key: classwork_task.sort_num }, [
+                    _c(
+                      "div",
+                      {
+                        staticClass:
+                          "p-6 sm:px-20 bg-white border-b border-gray-200"
+                      },
+                      [
+                        _c(
+                          "h3",
+                          {
+                            staticClass:
+                              "bg-white font-semibold text-xl text-gray-800 leading-tight"
+                          },
+                          [
+                            _vm._v(
+                              "\n                            content.name:" +
+                                _vm._s(classwork_task.name) +
+                                "\n                        "
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "mt-6 text-gray-500" },
+                          _vm._l(classwork_task.contents, function(content) {
+                            return _c("div", { key: content.sort_num }, [
+                              _c("div", { staticClass: "mt-6" }, [
+                                _vm._v(
+                                  "\n                                    " +
+                                    _vm._s(content.type) +
+                                    "\n                                "
+                                )
+                              ]),
+                              _vm._v(" "),
+                              content.type == "text"
+                                ? _c("div", [
+                                    _vm._v(
+                                      "\n                                    " +
+                                        _vm._s(content.text) +
+                                        "\n                                "
+                                    )
+                                  ])
+                                : content.type == "link"
+                                ? _c("div", [
+                                    _c(
+                                      "a",
+                                      {
+                                        staticClass:
+                                          "underline text-blue-600 visited:text-purple-600",
+                                        attrs: { href: "" }
+                                      },
+                                      [_vm._v(_vm._s(content.text))]
+                                    )
+                                  ])
+                                : _vm._e()
+                            ])
+                          }),
+                          0
+                        ),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "mt-6 text-gray-500" }, [
+                          _vm._v(
+                            "\n                            classwork_task: " +
+                              _vm._s(classwork_task) +
+                              "\n                        "
+                          )
+                        ])
+                      ]
+                    )
+                  ])
+                })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass: "mt-6 bg-white overflow-hidden shadow-xl sm:rounded-lg"
+          },
+          [
+            _c(
+              "h2",
               { staticClass: "p-6 sm:px-20 bg-white border-b border-gray-200" },
               [
-                _c("div", { staticClass: "text-2xl" }, [
-                  _vm._v(
-                    "\n                        classwork: " +
-                      _vm._s(_vm.$page.in_charge.classwork) +
-                      "\n                    "
-                  )
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "mt-6 text-gray-500" }, [
-                  _vm._v(
-                    "\n                        classwork_tasks: " +
-                      _vm._s(_vm.$page.in_charge.classwork_tasks) +
-                      "\n\n                        "
-                  ),
-                  _c("p", [_vm._v("見出し(name)")]),
-                  _vm._v(" "),
-                  _c("p", [_vm._v("説明(json.text, json.sortnum)")]),
-                  _vm._v(" "),
-                  _c("p", [
-                    _vm._v("リンク(json.text, json.sortnum)(とりあえず)")
-                  ]),
-                  _vm._v(" "),
-                  _c("p", [
-                    _vm._v("リンク(json.text, json.sortnum)(とりあえず)")
-                  ]),
-                  _vm._v(" "),
-                  _c("p", [_vm._v("説明(json.text, json.sortnum)")])
-                ])
+                _vm._v(
+                  "\n                    $page.incharge: " +
+                    _vm._s(_vm.$page.in_charge) +
+                    "\n                "
+                )
               ]
             )
           ]
