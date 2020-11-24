@@ -15,6 +15,6 @@ class School extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'name','workspace_url'
     ];
 }
