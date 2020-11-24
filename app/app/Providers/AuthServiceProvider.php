@@ -16,6 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Team::class => TeamPolicy::class,
+        ClassworkTask::class => ClassworkTaskPolicy::class,
     ];
 
     /**
@@ -28,15 +29,15 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('isStudent',function($user){
-            return $user->roll_flag == 'st';
+            return $user->isStudent;
         });
 
         Gate::define('isTeacher',function($user){
-            return $user->roll_flag == 'te';
+            return $user->isTeacher;
         });
 
         Gate::define('isAdmin',function($user){
-            return $user->roll_flag == 'ad';
+            return $user->isAdmin;
         });
     }
 }

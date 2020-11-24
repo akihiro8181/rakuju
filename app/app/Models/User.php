@@ -56,6 +56,22 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\InCharge', 'attendances');
     }
+    
+    /**
+     * 担当の授業を取得
+     */
+    public function in_charges()
+    {
+        return $this->hasMany('App\Models\InCharge', 'teacher_id');
+    }
+    
+    /**
+     * 担当の授業を取得
+     */
+    public function tutors()
+    {
+        return $this->belongsToMany('App\Models\InCharge', 'tutors');
+    }
 
     /**
      * 所属している学校の情報を取得
@@ -63,5 +79,29 @@ class User extends Authenticatable
     public function school()
     {
         return $this->belongsTo('App\Models\School');
+    }
+
+    /**
+     * ユーザーは生徒であるかを判定
+     */
+    public function isStudent()
+    {
+        return $this->roll_flag == 'st';
+    }
+
+    /**
+     * ユーザーは教員であるかを判定
+     */
+    public function isTeacher()
+    {
+        return $this->roll_flag == 'te';
+    }
+
+    /**
+     * ユーザーは管理者であるかを判定
+     */
+    public function isAdmin()
+    {
+        return $this->roll_flag == 'ad';
     }
 }
