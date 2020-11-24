@@ -19,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->put('/classwork-task/{in_charge}', CreateClassworkTask::class)->where('in_charge', '[0-9]+');
+Route::middleware('auth:sanctum')->post('/classwork-task/{in_charge}', CreateClassworkTask::class)->where('in_charge', '[0-9]+');
