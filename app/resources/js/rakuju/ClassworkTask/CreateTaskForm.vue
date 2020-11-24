@@ -63,7 +63,7 @@
         data() {
             return {
                 form: this.$inertia.form({
-                    '_method': 'PUT',
+                    '_method': 'POST',
                     name: this.name,
                     deadline: this.deadline,
                     sort_num: this.sort_num,
@@ -77,7 +77,7 @@
 
         methods: {
             createNewClassworkTask() {
-                this.form.put('/api/classwork-task/' + this.$inertia.page.props.in_charge.id, {
+                this.form.post('/api/classwork-task/' + this.$inertia.page.props.in_charge.id, {
                     preserveScroll: true
                 });
             }
