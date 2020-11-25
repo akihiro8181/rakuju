@@ -3562,7 +3562,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Layouts_AppLayout__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../Layouts/AppLayout */ "./resources/js/Layouts/AppLayout.vue");
 /* harmony import */ var _Jetstream_NavLink__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../Jetstream/NavLink */ "./resources/js/Jetstream/NavLink.vue");
-/* harmony import */ var _rakuju_ClassworkTask_CreateTaskForm__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../rakuju/ClassworkTask/CreateTaskForm */ "./resources/js/rakuju/ClassworkTask/CreateTaskForm.vue");
+/* harmony import */ var _Jetstream_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../../Jetstream/Button */ "./resources/js/Jetstream/Button.vue");
+/* harmony import */ var _rakuju_ClassworkTask_CreateTaskForm__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../rakuju/ClassworkTask/CreateTaskForm */ "./resources/js/rakuju/ClassworkTask/CreateTaskForm.vue");
+/* harmony import */ var _rakuju_ClassworkTask_UpdateTaskForm__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../rakuju/ClassworkTask/UpdateTaskForm */ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue");
 //
 //
 //
@@ -3613,14 +3615,50 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
     AppLayout: _Layouts_AppLayout__WEBPACK_IMPORTED_MODULE_0__["default"],
+    JetButton: _Jetstream_Button__WEBPACK_IMPORTED_MODULE_2__["default"],
     JetNavLink: _Jetstream_NavLink__WEBPACK_IMPORTED_MODULE_1__["default"],
-    CreateTaskForm: _rakuju_ClassworkTask_CreateTaskForm__WEBPACK_IMPORTED_MODULE_2__["default"]
+    CreateTaskForm: _rakuju_ClassworkTask_CreateTaskForm__WEBPACK_IMPORTED_MODULE_3__["default"],
+    UpdateTaskForm: _rakuju_ClassworkTask_UpdateTaskForm__WEBPACK_IMPORTED_MODULE_4__["default"]
+  },
+  data: function data() {
+    return {
+      show_create_form: false,
+      show_update_form: 0
+    };
+  },
+  methods: {
+    showUpdateForm: function showUpdateForm(index) {
+      this.show_update_form = this.show_update_form != index ? index : 0;
+    },
+    showCreateForm: function showCreateForm() {
+      this.show_create_form = !this.show_create_form;
+    }
   }
 });
 
@@ -5301,8 +5339,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   computed: {
     hasActions: function hasActions() {
@@ -5387,10 +5423,11 @@ __webpack_require__.r(__webpack_exports__);
     JetInputError: _Jetstream_InputError__WEBPACK_IMPORTED_MODULE_3__["default"],
     JetLabel: _Jetstream_Label__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
+  props: ['in_charge_id'],
   data: function data() {
     return {
       form: this.$inertia.form({
-        '_method': 'PUT',
+        '_method': 'POST',
         name: this.name,
         deadline: this.deadline,
         sort_num: this.sort_num,
@@ -5403,11 +5440,113 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     createNewClassworkTask: function createNewClassworkTask() {
-      this.form.put('/api/classwork-task/' + this.$inertia.page.props.in_charge.id, {
+      this.form.post('/api/classwork-task/' + this.in_charge_id, {
         preserveScroll: true
       });
     }
   }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Jetstream_Button__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../../Jetstream/Button */ "./resources/js/Jetstream/Button.vue");
+/* harmony import */ var _Jetstream_Input__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../../Jetstream/Input */ "./resources/js/Jetstream/Input.vue");
+/* harmony import */ var _rakuju_BaseComponent_BaseForm__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../../rakuju/BaseComponent/BaseForm */ "./resources/js/rakuju/BaseComponent/BaseForm.vue");
+/* harmony import */ var _Jetstream_InputError__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../../Jetstream/InputError */ "./resources/js/Jetstream/InputError.vue");
+/* harmony import */ var _Jetstream_Label__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./../../Jetstream/Label */ "./resources/js/Jetstream/Label.vue");
+/* harmony import */ var _Jetstream_ActionMessage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../../Jetstream/ActionMessage */ "./resources/js/Jetstream/ActionMessage.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    JetActionMessage: _Jetstream_ActionMessage__WEBPACK_IMPORTED_MODULE_5__["default"],
+    JetButton: _Jetstream_Button__WEBPACK_IMPORTED_MODULE_0__["default"],
+    RakBaseForm: _rakuju_BaseComponent_BaseForm__WEBPACK_IMPORTED_MODULE_2__["default"],
+    JetInput: _Jetstream_Input__WEBPACK_IMPORTED_MODULE_1__["default"],
+    JetInputError: _Jetstream_InputError__WEBPACK_IMPORTED_MODULE_3__["default"],
+    JetLabel: _Jetstream_Label__WEBPACK_IMPORTED_MODULE_4__["default"]
+  },
+  props: ['in_charge_id', 'task_id'],
+  data: function data() {
+    return {
+      form: this.$inertia.form({
+        '_method': 'PUT',
+        name: this.name,
+        deadline: this.deadline,
+        sort_num: this.sort_num,
+        contents: this.contents
+      }, {
+        bag: 'updateClassworkTask',
+        resetOnSuccess: false
+      })
+    };
+  },
+  methods: {
+    updateClassworkTask: function updateClassworkTask() {
+      this.form.put('/api/classwork-task/' + this.in_charge_id + "/" + this.task_id, {
+        preserveScroll: true
+      });
+    }
+  } // mounted: {
+  // }
+
 });
 
 /***/ }),
@@ -27659,57 +27798,89 @@ var render = function() {
           "div",
           { staticClass: "bg-white overflow-hidden shadow-xl sm:rounded-lg" },
           [
-            _c("create-task-form", { attrs: { id: _vm.$page.in_charge.id } }),
-            _vm._v(" "),
             _c(
-              "h2",
+              "div",
               {
                 staticClass:
-                  "p-6 sm:px-20 bg-white font-semibold text-xl text-gray-800 leading-tight"
+                  "p-6 sm:px-20 bg-white flex items-center space-x-4 justify-between"
               },
               [
-                _vm._v(
-                  "\n                    classwork.name: " +
-                    _vm._s(_vm.$page.in_charge.classwork.name) +
-                    "\n                "
-                )
+                _c("div", [
+                  _c(
+                    "h1",
+                    {
+                      staticClass:
+                        "font-semibold text-2xl text-gray-800 leading-tight"
+                    },
+                    [
+                      _vm._v(
+                        "\n                            授業名：" +
+                          _vm._s(_vm.$page.in_charge.classwork.name) +
+                          "\n                        "
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "mt-2 leading-tight" },
+                    [
+                      _vm._v(
+                        "\n                            授業担当者： " +
+                          _vm._s(_vm.$page.in_charge.teacher.name)
+                      ),
+                      _vm._l(_vm.$page.in_charge.tutors, function(tutor) {
+                        return _c("span", { key: tutor.id }, [
+                          _vm._v(", " + _vm._s(tutor.name))
+                        ])
+                      })
+                    ],
+                    2
+                  )
+                ]),
+                _vm._v(" "),
+                _vm.$page.user.roll_flag == "te"
+                  ? _c(
+                      "div",
+                      [
+                        _c(
+                          "jet-button",
+                          {
+                            staticClass: "text-lg",
+                            nativeOn: {
+                              click: function($event) {
+                                return _vm.showCreateForm()
+                              }
+                            }
+                          },
+                          [
+                            _vm._v("\n                            コンテンツ"),
+                            _c("br"),
+                            _vm._v("追加\n                        ")
+                          ]
+                        )
+                      ],
+                      1
+                    )
+                  : _vm._e()
               ]
             ),
             _vm._v(" "),
-            _c(
-              "h2",
-              {
-                staticClass:
-                  "p-6 sm:px-20 bg-white font-semibold text-xl text-gray-800 leading-tight"
-              },
-              [
-                _vm._v(
-                  "\n                    classwork.teacher.name: " +
-                    _vm._s(_vm.$page.in_charge.teacher.name) +
-                    "\n                "
+            _vm.show_create_form
+              ? _c(
+                  "div",
+                  {
+                    staticClass:
+                      "p-6 sm:px-20 bg-white border-b border-gray-200"
+                  },
+                  [
+                    _c("create-task-form", {
+                      attrs: { in_charge_id: _vm.$page.in_charge.id }
+                    })
+                  ],
+                  1
                 )
-              ]
-            ),
-            _vm._v(" "),
-            _c(
-              "h2",
-              {
-                staticClass:
-                  "p-6 sm:px-20 bg-white border-b border-gray-200 font-semibold text-xl text-gray-800 leading-tight"
-              },
-              [
-                _vm._v(
-                  "\n                    classwork.tutors.name: " +
-                    _vm._s(_vm.$page.in_charge.teacher.name)
-                ),
-                _vm._l(_vm.$page.in_charge.tutors, function(tutor) {
-                  return _c("span", { key: tutor.id }, [
-                    _vm._v(", " + _vm._s(tutor.name))
-                  ])
-                })
-              ],
-              2
-            ),
+              : _vm._e(),
             _vm._v(" "),
             _vm.$page.in_charge.classwork_tasks == []
               ? _c("div", [
@@ -27737,57 +27908,100 @@ var render = function() {
                           "p-6 sm:px-20 bg-white border-b border-gray-200"
                       },
                       [
-                        _c(
-                          "h3",
-                          {
-                            staticClass:
-                              "bg-white font-semibold text-xl text-gray-800 leading-tight"
-                          },
-                          [
-                            _vm._v(
-                              "\n                            content.name:" +
-                                _vm._s(classwork_task.name) +
-                                "\n                        "
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          { staticClass: "mt-6 text-gray-500" },
-                          _vm._l(classwork_task.contents, function(content) {
-                            return _c("div", { key: content.sort_num }, [
-                              content.type == "text"
-                                ? _c("div", [
-                                    _vm._v(
-                                      "\n                                    " +
-                                        _vm._s(content.text) +
-                                        "\n                                "
-                                    )
-                                  ])
-                                : content.type == "link"
-                                ? _c("div", [
-                                    _c(
-                                      "a",
-                                      {
-                                        staticClass:
-                                          "underline text-blue-600 visited:text-purple-600",
-                                        attrs: { href: content.url }
-                                      },
-                                      [
-                                        _vm._v(
-                                          "\n                                        " +
-                                            _vm._s(content.text) +
-                                            "\n                                    "
+                        _vm.$page.user.roll_flag == "te"
+                          ? _c(
+                              "div",
+                              [
+                                _c(
+                                  "jet-button",
+                                  {
+                                    nativeOn: {
+                                      click: function($event) {
+                                        return _vm.showUpdateForm(
+                                          classwork_task.id
                                         )
-                                      ]
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                ⚙\n                            "
                                     )
+                                  ]
+                                )
+                              ],
+                              1
+                            )
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.show_update_form == classwork_task.id
+                          ? _c(
+                              "div",
+                              [
+                                _c("update-task-form", {
+                                  attrs: {
+                                    task_id: classwork_task.id,
+                                    in_charge_id: _vm.$page.in_charge.id
+                                  }
+                                })
+                              ],
+                              1
+                            )
+                          : _c("div", [
+                              _c(
+                                "h3",
+                                {
+                                  staticClass:
+                                    "bg-white font-semibold text-xl text-gray-800 leading-tight"
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                                content.name:" +
+                                      _vm._s(classwork_task.name) +
+                                      "\n                            "
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                { staticClass: "mt-6 text-gray-500" },
+                                _vm._l(classwork_task.contents, function(
+                                  content
+                                ) {
+                                  return _c("div", { key: content.sort_num }, [
+                                    content.type == "text"
+                                      ? _c("div", [
+                                          _vm._v(
+                                            "\n                                        " +
+                                              _vm._s(content.text) +
+                                              "\n                                    "
+                                          )
+                                        ])
+                                      : content.type == "link"
+                                      ? _c("div", [
+                                          _c(
+                                            "a",
+                                            {
+                                              staticClass:
+                                                "underline text-blue-600 visited:text-purple-600",
+                                              attrs: { href: content.url }
+                                            },
+                                            [
+                                              _vm._v(
+                                                "\n                                            " +
+                                                  _vm._s(content.text) +
+                                                  "\n                                        "
+                                              )
+                                            ]
+                                          )
+                                        ])
+                                      : _vm._e()
                                   ])
-                                : _vm._e()
+                                }),
+                                0
+                              )
                             ])
-                          }),
-                          0
-                        )
                       ]
                     )
                   ])
@@ -30692,44 +30906,42 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "md:grid md:grid-cols-3 md:gap-6" }, [
-    _c("div", { staticClass: "mt-5 md:mt-0 md:col-span-2" }, [
-      _c(
-        "form",
-        {
-          on: {
-            submit: function($event) {
-              $event.preventDefault()
-              return _vm.$emit("submitted")
-            }
+  return _c("div", [
+    _c(
+      "form",
+      {
+        on: {
+          submit: function($event) {
+            $event.preventDefault()
+            return _vm.$emit("submitted")
           }
-        },
-        [
-          _c("div", { staticClass: "shadow overflow-hidden sm:rounded-md" }, [
-            _c("div", { staticClass: "px-4 py-5 bg-white sm:p-6" }, [
-              _c(
+        }
+      },
+      [
+        _c("div", { staticClass: "shadow overflow-hidden sm:rounded-md" }, [
+          _c("div", { staticClass: "px-4 py-5 bg-white sm:p-6" }, [
+            _c(
+              "div",
+              { staticClass: "grid grid-cols-6 gap-6" },
+              [_vm._t("form")],
+              2
+            )
+          ]),
+          _vm._v(" "),
+          _vm.hasActions
+            ? _c(
                 "div",
-                { staticClass: "grid grid-cols-6 gap-6" },
-                [_vm._t("form")],
+                {
+                  staticClass:
+                    "flex items-center justify-end px-4 py-3 bg-gray-50 text-right sm:px-6"
+                },
+                [_vm._t("actions")],
                 2
               )
-            ]),
-            _vm._v(" "),
-            _vm.hasActions
-              ? _c(
-                  "div",
-                  {
-                    staticClass:
-                      "flex items-center justify-end px-4 py-3 bg-gray-50 text-right sm:px-6"
-                  },
-                  [_vm._t("actions")],
-                  2
-                )
-              : _vm._e()
-          ])
-        ]
-      )
-    ])
+            : _vm._e()
+        ])
+      ]
+    )
   ])
 }
 var staticRenderFns = []
@@ -30763,7 +30975,7 @@ var render = function() {
           return [
             _c(
               "div",
-              { staticClass: "col-span-6 sm:col-span-4" },
+              { staticClass: "col-span-5" },
               [
                 _c("jet-label", { attrs: { for: "name", value: "Name" } }),
                 _vm._v(" "),
@@ -30789,7 +31001,7 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              { staticClass: "col-span-6 sm:col-span-4" },
+              { staticClass: "col-span-5" },
               [
                 _c("jet-label", {
                   attrs: { for: "deadline", value: "Deadline" }
@@ -30817,7 +31029,7 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              { staticClass: "col-span-6 sm:col-span-4" },
+              { staticClass: "col-span-5" },
               [
                 _c("jet-label", {
                   attrs: { for: "sort_num", value: "SortNum" }
@@ -30845,7 +31057,192 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              { staticClass: "col-span-6 sm:col-span-4" },
+              { staticClass: "col-span-5" },
+              [
+                _c("jet-label", {
+                  attrs: { for: "contents", value: "Contents" }
+                }),
+                _vm._v(" "),
+                _c("textarea", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.contents,
+                      expression: "form.contents"
+                    }
+                  ],
+                  staticClass: "mt-1 block w-full",
+                  attrs: {
+                    id: "contents",
+                    name: "contents",
+                    rows: "5",
+                    cols: "33"
+                  },
+                  domProps: { value: _vm.form.contents },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form, "contents", $event.target.value)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c("jet-input-error", {
+                  staticClass: "mt-2",
+                  attrs: { message: _vm.form.error("contents") }
+                })
+              ],
+              1
+            )
+          ]
+        },
+        proxy: true
+      },
+      {
+        key: "actions",
+        fn: function() {
+          return [
+            _c(
+              "jet-action-message",
+              {
+                staticClass: "mr-3",
+                attrs: { on: _vm.form.recentlySuccessful }
+              },
+              [_vm._v("\n            Saved.\n        ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "jet-button",
+              {
+                class: { "opacity-25": _vm.form.processing },
+                attrs: { disabled: _vm.form.processing }
+              },
+              [_vm._v("\n            Save\n        ")]
+            )
+          ]
+        },
+        proxy: true
+      }
+    ])
+  })
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60&":
+/*!***************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60& ***!
+  \***************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("rak-base-form", {
+    on: { submitted: _vm.updateClassworkTask },
+    scopedSlots: _vm._u([
+      {
+        key: "form",
+        fn: function() {
+          return [
+            _c(
+              "div",
+              { staticClass: "col-span-5" },
+              [
+                _c("jet-label", { attrs: { for: "name", value: "Name" } }),
+                _vm._v(" "),
+                _c("jet-input", {
+                  staticClass: "mt-1 block w-full",
+                  attrs: { id: "name", type: "text", autocomplete: "name" },
+                  model: {
+                    value: _vm.form.name,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "name", $$v)
+                    },
+                    expression: "form.name"
+                  }
+                }),
+                _vm._v(" "),
+                _c("jet-input-error", {
+                  staticClass: "mt-2",
+                  attrs: { message: _vm.form.error("name") }
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-span-5" },
+              [
+                _c("jet-label", {
+                  attrs: { for: "deadline", value: "Deadline" }
+                }),
+                _vm._v(" "),
+                _c("jet-input", {
+                  staticClass: "mt-1 block w-full",
+                  attrs: { id: "deadline", type: "date" },
+                  model: {
+                    value: _vm.form.deadline,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "deadline", $$v)
+                    },
+                    expression: "form.deadline"
+                  }
+                }),
+                _vm._v(" "),
+                _c("jet-input-error", {
+                  staticClass: "mt-2",
+                  attrs: { message: _vm.form.error("deadline") }
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-span-5" },
+              [
+                _c("jet-label", {
+                  attrs: { for: "sort_num", value: "SortNum" }
+                }),
+                _vm._v(" "),
+                _c("jet-input", {
+                  staticClass: "mt-1 block w-full",
+                  attrs: { id: "sort_num", type: "number" },
+                  model: {
+                    value: _vm.form.sort_num,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "sort_num", $$v)
+                    },
+                    expression: "form.sort_num"
+                  }
+                }),
+                _vm._v(" "),
+                _c("jet-input-error", {
+                  staticClass: "mt-2",
+                  attrs: { message: _vm.form.error("sort_num") }
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-span-5" },
               [
                 _c("jet-label", {
                   attrs: { for: "contents", value: "Contents" }
@@ -46463,6 +46860,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_CreateTaskForm_vue_vue_type_template_id_4d7b5583___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_CreateTaskForm_vue_vue_type_template_id_4d7b5583___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue":
+/*!**************************************************************!*\
+  !*** ./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue ***!
+  \**************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./UpdateTaskForm.vue?vue&type=template&id=c650bc60& */ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60&");
+/* harmony import */ var _UpdateTaskForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UpdateTaskForm.vue?vue&type=script&lang=js& */ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _UpdateTaskForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************!*\
+  !*** ./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateTaskForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./UpdateTaskForm.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateTaskForm_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60&":
+/*!*********************************************************************************************!*\
+  !*** ./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60& ***!
+  \*********************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./UpdateTaskForm.vue?vue&type=template&id=c650bc60& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/rakuju/ClassworkTask/UpdateTaskForm.vue?vue&type=template&id=c650bc60&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UpdateTaskForm_vue_vue_type_template_id_c650bc60___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

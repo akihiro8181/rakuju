@@ -1,5 +1,5 @@
 <template>
-    <rak-base-form @submitted="createNewClassworkTask">
+    <rak-base-form @submitted="updateClassworkTask">
         <template #form>
             <!-- Name -->
             <div class="col-span-5">
@@ -11,7 +11,7 @@
             <!-- Deadline -->
             <div class="col-span-5">
                 <jet-label for="deadline" value="Deadline" />
-                <jet-input id="deadline" type="date" class="mt-1 block w-full" v-model="form.deadline" />
+                <jet-input id="deadline" type="date" class="mt-1 block w-full" v-model="form.deadline"/>
                 <jet-input-error :message="form.error('deadline')" class="mt-2" />
             </div>
 
@@ -60,29 +60,33 @@
             JetLabel,
         },
 
-        props: ['in_charge_id'],
+        props: ['in_charge_id', 'task_id'],
 
         data() {
             return {
                 form: this.$inertia.form({
-                    '_method': 'POST',
+                    '_method': 'PUT',
                     name: this.name,
                     deadline: this.deadline,
                     sort_num: this.sort_num,
                     contents: this.contents,
                 }, {
-                    bag: 'createNewClassworkTask',
+                    bag: 'updateClassworkTask',
                     resetOnSuccess: false,
                 }),
             }
         },
 
         methods: {
-            createNewClassworkTask() {
-                this.form.post('/api/classwork-task/' + this.in_charge_id, {
+            updateClassworkTask() {
+                this.form.put('/api/classwork-task/' + this.in_charge_id + "/" + this.task_id, {
                     preserveScroll: true
                 });
             }
         },
+
+        // mounted: {
+            
+        // }
     }
 </script>

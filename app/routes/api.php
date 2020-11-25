@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\CreateClassworkTask;
+use App\Http\Controllers\API\UpdateClassworkTask;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:sanctum')->post('/classwork-task/{in_charge}', CreateClassworkTask::class)->where('in_charge', '[0-9]+');
+Route::middleware('auth:sanctum')->put('/classwork-task/{in_charge}/{classwork_task}', UpdateClassworkTask::class)->where('in_charge', '[0-9]+')->where('classwork_task', '[0-9]+');
