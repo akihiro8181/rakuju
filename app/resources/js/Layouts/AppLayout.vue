@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-gray-100 flex">
+    <div class="min-h-screen bg-gray-100 flex" @click='onClick'>
         <nav class="bg-white border-b border-gray-100 flex-none w-64 pb-6 hidden md:block">
             <!-- Primary Navigation Menu -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -136,6 +136,19 @@
                             move page(admin)(test)
                         </jet-nav-link>
                     </div>
+
+                    <!-- new video window -->
+                    <div>
+                        <!-- 学生用のvideo リンク -->
+                        <a v-if="$page.user.roll_flag == 'st'" @click="showDialog()" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                            Video(Start)(student)
+                        </a>
+                        <!-- 先生用のvideoリンク -->
+                        <a v-if="$page.user.roll_flag == 'te'" @click="showDialog()" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                            Video(Start)(teacher)
+                        </a>
+
+                    </div>
                 </div>
             </div>
 
@@ -227,6 +240,23 @@
         <main>
             <slot></slot>
         </main>
+        <div class="dialog" ref="startDialog" v-if="this.diaglogFlag">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" ref="js_Close_Dialog">&times;</span>
+                    <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="content-text" v-if="$page.user.roll_flag == 'te'">
+                        授業を開設します、よろしいですか？
+                    </div>
+                    <div class="content-text" v-if="$page.user.roll_flag == 'st'">
+                        授業に参加します、よろしいですか？
+                    </div>
+                    <div class="okButton" ref="js-ok-button" @click="startVideo($page.user.roll_flag)">はい</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modal Portal -->
         <portal-target name="modal" multiple>
@@ -257,10 +287,36 @@
         data() {
             return {
                 showingNavigationDropdown: false,
+                videoWindow : undefined,　　// video window 用の変数
+                diaglogFlag : false,　　　//dialog 表示変数
             }
         },
 
         methods: {
+            //dialog の呼び出し　メソッド
+            showDialog(){
+                if(this.videoWindow === undefined || this.videoWindow.closed){
+                    this.diaglogFlag = true;
+                }else{
+                    this.videoWindow.focus();
+                }
+            },
+            startVideo(roll_flag) {
+                this.diaglogFlag = false;
+                var height = screen.availHeight;
+                var width = screen.availWidth;
+                var windowWidth = width/8*6;
+                var windowHeight = height / 14 * 13;
+                var left = (width - windowWidth) / 2;
+                var url;
+                if(roll_flag==='st'){
+                    url = route('studentVideo');
+                }else{
+                    url = route('teacherVideo');
+                }
+                this.videoWindow = window.open(url, '授業名',`left=${left},width=${windowWidth},height=${windowHeight}`);
+            },
+
             // switchToTeam(team) {
             //     this.$inertia.put(route('current-team.update'), {
             //         'team_id': team.id
@@ -274,6 +330,11 @@
                     window.location = '/';
                 })
             },
+            onClick: function (e) {
+                if (e.target == this.$refs.startDialog || e.target== this.$refs.js_Close_Dialog) {
+                    this.diaglogFlag = false;
+                }
+            }
         },
 
         computed: {
@@ -283,3 +344,96 @@
         }
     }
 </script>
+
+<style>
+a{
+    cursor: pointer;
+}
+/* dialog style */
+.dialog{
+    display: flex;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 410px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+    border-radius: 10px;
+}
+@keyframes animatetop {
+    from {
+        top:-300px; 
+        opacity:0}
+
+    to {
+        top:0; 
+        opacity:1
+    }
+}
+.close {
+    color: white;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+h2{
+    font-size: revert;
+    font-weight: bolder;
+}
+
+.modal-header {
+    padding: 2px 16px;
+    background-color: #7d93baff;
+    color: #404b73ff;
+    line-height: 38px;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+}
+
+.modal-body {
+    padding: 8px 16px;
+}
+.content-text{
+    margin: 5px;
+    font-size: 21px;
+    font-weight: bold;
+    display: flex;
+    line-height: 50px;
+}
+.okButton{
+    outline: none;
+    background-color:#404b73ff;
+    color: #7d93baff;
+    width: 70px;
+    height: 35px;
+    line-height: 35px;
+    font-size: 21px;
+    border-radius: 12px;
+    margin: auto;
+    text-align: center;
+    cursor: pointer;
+}
+.okButton:hover{
+    background-color: #3b404f;
+}
+</style>

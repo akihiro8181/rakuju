@@ -37,3 +37,13 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/teacher', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/admin', function () {
     return Inertia\Inertia::render('DataTest/Admin');
 })->name('admin');
+
+//学生のvideoページのルート
+Route::middleware(['auth:sanctum', 'verified'])->get('/studentVideo', function () {
+    return Inertia\Inertia::render('DataTest/StudentVideo');
+})->name('studentVideo');
+
+//先生のvideoページのルート
+Route::middleware(['auth:sanctum', 'verified'])->get('/teacherVideo', function () {
+    return Inertia\Inertia::render('DataTest/TeacherVideo');
+})->name('teacherVideo');
