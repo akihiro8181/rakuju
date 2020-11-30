@@ -19,7 +19,7 @@ class CreateClassworkTasksTable extends Migration
             $table->string("name");
             $table->timestamp('deadline', 0);
             $table->integer('sort_num');
-            $table->json('content');
+            $table->json('contents');
             $table->timestamps();
         });
     }

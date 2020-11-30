@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Models\School;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -22,21 +23,33 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input)
     {
         Validator::make($input, [
-            'name' => ['required', 'string', 'max:255'],
-            'school_id' => ['required', 'numeric', 'max:255'],
+            'school_name' => ['required', 'string', 'max:255'],
+            'school_admin_name' => ['required', 'string', 'max:255'],
             'login_number' => ['required', 'string', 'max:255'],
             'password' => $this->passwordRules(),
         ])->validate();
 
         return DB::transaction(function () use ($input) {
+
+            $school = tap(School::create([
+                'name' => $input['school_name'],
+                'workspace_url' => $input['workspace_URL'],
+            ]))->update([
+                'name' => $input['school_name'],
+                'workspace_url' => $input['workspace_URL'],
+            ]);
+
+
             return tap(User::create([
-                'name' => $input['name'],
-                'school_id' => $input['school_id'],
+                'name' => $input['school_admin_name'],
+                'school_id' => $school->id,
                 'login_number' => $input['login_number'],
                 'password' => Hash::make($input['password']),
+                'roll_flag' => 'ad',
             ]), function (User $user) {
                 $this->createTeam($user);
             });
+
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -36,8 +37,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request)
     {
+        // 未ログインだとユーザーの取得ができないので
+        // データ取得の処理を飛ばす
+        if (Auth::guard()->guest()) {
+            return parent::share($request);
+        }
+
+        $user = Auth::user();   // ログイン中のユーザー
+
+        // ユーザーが所属する学校の情報を取得
+        $user->school;
+
+        if ($user->roll_flag == 'st') {
+            // 受講中の授業を取得
+            foreach ($user->attendances as $attendance) {
+                // 授業情報を取得
+                $attendance->classwork;
+            }
+        } elseif ($user->roll_flag == 'te') {
+            // 教師の場合の処理
+        } elseif ($user->roll_flag == 'ad') {
+            // 管理者の場合の処理
+        }
+        
         return array_merge(parent::share($request), [
-            'school' => fn () => $request->user()->school,
+            //
         ]);
     }
 }

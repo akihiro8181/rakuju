@@ -12,7 +12,7 @@
                             </inertia-link>
                         </div>
                         <!-- school name -->
-                        <div>{{$page.school.name}}</div>
+                        <div>{{$page.user.school.name}}</div>
                         <div>{{$page.user.roll_flag}}</div>
                         <!-- Settings Dropdown -->
                         <div class="flex-grow">
@@ -109,6 +109,9 @@
                         <jet-nav-link :href="route('datatest')" :active="$page.currentRouteName == 'datatest'">
                             DataTest
                         </jet-nav-link>
+                    </div>
+                    <div>
+                        <attendance-list />
                     </div>
 
                     <!-- Hamburger -->
@@ -268,6 +271,7 @@
     import JetDropdownLink from './../Jetstream/DropdownLink'
     import JetNavLink from './../Jetstream/NavLink'
     import JetResponsiveNavLink from './../Jetstream/ResponsiveNavLink'
+    import AttendanceList from './AttendanceList'
 
     export default {
         components: {
@@ -277,6 +281,7 @@
             JetDropdownLink,
             JetNavLink,
             JetResponsiveNavLink,
+            AttendanceList,
         },
 
         data() {
@@ -312,13 +317,13 @@
                 this.videoWindow = window.open(url, '授業名',`left=${left},width=${windowWidth},height=${windowHeight}`);
             },
 
-            switchToTeam(team) {
-                this.$inertia.put(route('current-team.update'), {
-                    'team_id': team.id
-                }, {
-                    preserveState: false
-                })
-            },
+            // switchToTeam(team) {
+            //     this.$inertia.put(route('current-team.update'), {
+            //         'team_id': team.id
+            //     }, {
+            //         preserveState: false
+            //     })
+            // },
 
             logout() {
                 axios.post(route('logout').url()).then(response => {

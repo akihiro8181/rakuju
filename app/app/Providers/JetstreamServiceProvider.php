@@ -41,6 +41,11 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::deleteTeamsUsing(DeleteTeam::class);
         Jetstream::deleteUsersUsing(DeleteUser::class);
 
+
+        Fortify::registerView(function () {
+            return view('auth.register_school');
+        });
+
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('school_id', $request->school_id)->where('login_number', $request->login_number)->first();
         
