@@ -1,7 +1,7 @@
 <template>
     <div class="body" @click='onClickVideo'>
         <div class="header">
-            <h1>{{$page.school.name}}</h1>
+            <h1>授業名：{{$page.user.school.name}}</h1>
         </div>
         <div class="left">
             <transition name="list">
