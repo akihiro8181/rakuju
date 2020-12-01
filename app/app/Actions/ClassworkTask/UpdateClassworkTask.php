@@ -16,11 +16,11 @@ class UpdateClassworkTask
      * Create a newly registered classwork task.
      *
      * @param  App\Models\User  $user
-     * @param  App\Models\InCharge  $in_charge
+     * @param  App\Models\ClassworkTask  $classwork_task
      * @param  array  $input
-     * @return \App\Models\User
+     * @return void
      */
-    public function update(User $user, InCharge $in_charge, ClassworkTask $classwork_task, array $input)
+    public function update(User $user, ClassworkTask $classwork_task, array $input)
     {
         // ユーザー権限の認証
         // Gate::forUser($user)->authorize('create', $in_charge);
@@ -34,9 +34,7 @@ class UpdateClassworkTask
         // ])->validate();
 
         $classwork_task->update([
-            'in_charge_id' => $in_charge->id,
             'name' => $input['name'],
-            'deadline' => $input['deadline'],
             'sort_num' => $input['sort_num'],
             'contents' => json_decode($input['contents']),
         ]);

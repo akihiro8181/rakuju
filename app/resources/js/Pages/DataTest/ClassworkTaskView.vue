@@ -12,7 +12,7 @@
                                 授業担当者： {{$page.in_charge.teacher.name}}<span v-for="tutor in $page.in_charge.tutors" :key="tutor.id">, {{tutor.name}}</span>
                             </div>
                         </div>
-                        <div v-if="$page.user.roll_flag == 'te'">
+                        <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'">
                             <jet-button @click.native="showCreateForm()" class="text-lg">
                                 コンテンツ<br>追加
                             </jet-button>
@@ -28,13 +28,16 @@
                     </div>
                     <div v-else v-for="classwork_task in $page.in_charge.classwork_tasks" :key="classwork_task.sort_num">
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                            <div v-if="$page.user.roll_flag == 'te'">
+                            <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'" class="flex space-x-4">
                                 <jet-button @click.native="showUpdateForm(classwork_task.id)">
                                     ⚙
                                 </jet-button>
+                                <jet-danger-button @click.native="confirmClassworkTaskDeletion(classwork_task.id)">
+                                    削除
+                                </jet-danger-button>
                             </div>
                             <div v-if="show_update_form == classwork_task.id">
-                                <update-task-form :task_id="classwork_task.id" :in_charge_id="$page.in_charge.id"/>
+                                <update-task-form :task="classwork_task" />
                             </div>
                             <div v-else>
                                 <h3 class="bg-white font-semibold text-xl text-gray-800 leading-tight">
@@ -57,12 +60,33 @@
                     </div>
                 </div>
                 <div class="mt-6 bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <h2 class="p-6 sm:px-20 bg-white border-b border-gray-200">
+                    <div class="p-6 sm:px-20 bg-white border-b border-gray-800">
                         $page.incharge: {{$page.in_charge}}
-                    </h2>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Delete Account Confirmation Modal -->
+        <jet-dialog-modal :show="confirmingClassworkTaskDeletion" @close="confirmingClassworkTaskDeletion = false">
+            <template #title>
+                Delete Account
+            </template>
+
+            <template #content>
+                この操作は元に戻せません。このタスクを削除してもよろしいですか？
+            </template>
+
+            <template #footer>
+                <jet-secondary-button @click.native="confirmingClassworkTaskDeletion = false">
+                    いいえ
+                </jet-secondary-button>
+
+                <jet-danger-button class="ml-2" @click.native="deleteClassworkTask" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    はい
+                </jet-danger-button>
+            </template>
+        </jet-dialog-modal>
     </app-layout>
 </template>
 
@@ -70,6 +94,9 @@
     import AppLayout from './../../Layouts/AppLayout'
     import JetNavLink from './../../Jetstream/NavLink'
     import JetButton from './../../Jetstream/Button'
+    import JetDangerButton from './../../Jetstream/DangerButton'
+    import JetSecondaryButton from './../../Jetstream/SecondaryButton'
+    import JetDialogModal from './../../Jetstream/DialogModal'
     import CreateTaskForm from '../../rakuju/ClassworkTask/CreateTaskForm'
     import UpdateTaskForm from '../../rakuju/ClassworkTask/UpdateTaskForm'
 
@@ -77,6 +104,9 @@
         components: {
             AppLayout,
             JetButton,
+            JetDangerButton,
+            JetSecondaryButton,
+            JetDialogModal,
             JetNavLink,
             CreateTaskForm,
             UpdateTaskForm,
@@ -86,6 +116,16 @@
             return {
                 show_create_form: false,
                 show_update_form: 0,
+
+                confirmingClassworkTaskDeletion: false,
+                deleting: false,
+
+                form: this.$inertia.form({
+                    '_method': 'DELETE',
+                    classwork_task_id: -1,
+                }, {
+                    bag: 'deleteClassworkTask'
+                })
             }
         },
 
@@ -97,6 +137,22 @@
             showCreateForm() {
                 this.show_create_form = !this.show_create_form;
             }, 
+
+            confirmClassworkTaskDeletion(index) {
+                this.form.classwork_task_id = index;
+
+                this.confirmingClassworkTaskDeletion = true;
+            },
+
+            deleteClassworkTask() {
+                this.form.delete('/api/classwork-task/' + this.form.classwork_task_id, {
+                    preserveScroll: true
+                }).then(response => {
+                    if (! this.form.hasErrors()) {
+                        this.confirmingUserDeletion = false;
+                    }
+                })
+            },
         },
     }
 </script>
