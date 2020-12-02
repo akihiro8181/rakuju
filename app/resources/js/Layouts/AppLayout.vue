@@ -110,8 +110,14 @@
                             DataTest
                         </jet-nav-link>
                     </div>
-                    <div>
+                    <div v-if="$page.user.roll_flag == 'st'">
                         <attendance-list />
+                    </div>
+                    <div v-if="$page.user.roll_flag == 'te'">
+                        <tutor-list />
+                    </div>
+                    <div v-if="$page.user.roll_flag == 'ad'">
+                        <in-charge-list />
                     </div>
 
                     <!-- Hamburger -->
@@ -272,6 +278,8 @@
     import JetNavLink from './../Jetstream/NavLink'
     import JetResponsiveNavLink from './../Jetstream/ResponsiveNavLink'
     import AttendanceList from './AttendanceList'
+    import TutorList from './TutorList'
+    import InChargeList from './InChargeList'
 
     export default {
         components: {
@@ -282,6 +290,8 @@
             JetNavLink,
             JetResponsiveNavLink,
             AttendanceList,
+            TutorList,
+            InChargeList,
         },
 
         data() {

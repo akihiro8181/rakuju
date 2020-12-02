@@ -56,8 +56,18 @@ class HandleInertiaRequests extends Middleware
             }
         } elseif ($user->roll_flag == 'te') {
             // 教師の場合の処理
+            foreach ($user->tutors as $tutor) {
+                // 授業情報を取得
+                $tutor->classwork;
+            }
         } elseif ($user->roll_flag == 'ad') {
             // 管理者の場合の処理
+            // 授業情報を取得
+            foreach ($user->school->classworks as $classwork) {
+                foreach ($classwork->in_charges as $in_charge) {
+                    $in_charge->teacher;
+                }
+            }
         }
         
         return array_merge(parent::share($request), [

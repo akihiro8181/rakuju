@@ -17,4 +17,12 @@ class Classwork extends Model
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * 授業を取得
+     */
+    public function in_charges()
+    {
+        return $this->hasMany('App\Models\InCharge');
+    }
 }
