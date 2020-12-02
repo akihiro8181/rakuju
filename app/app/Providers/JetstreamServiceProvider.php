@@ -10,6 +10,7 @@ use App\Actions\Jetstream\UpdateTeamName;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Jetstream\Jetstream;
 use App\Models\User;
+use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Fortify\Fortify;
@@ -47,7 +48,7 @@ class JetstreamServiceProvider extends ServiceProvider
         });
 
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('school_id', $request->school_id)->where('login_number', $request->login_number)->first();
+            $user = User::where('school_id', School::where('workspace_url', $request->workspace_url)->first()->id)->where('login_number', $request->login_number)->first();
         
             if ($user &&
                 Hash::check($request->password, $user->password)) {
