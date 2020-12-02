@@ -17,4 +17,12 @@ class School extends Model
     protected $fillable = [
         'name','workspace_url'
     ];
+
+    /**
+     * 授業を取得
+     */
+    public function classworks()
+    {
+        return $this->hasMany('App\Models\Classwork');
+    }
 }
