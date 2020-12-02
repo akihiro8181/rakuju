@@ -16,8 +16,8 @@
             @csrf
 
             <div>
-                <x-jet-label for="school_id" value="{{ __('School ID') }}" />
-                <x-jet-input id="school_id" class="block mt-1 w-full" type="text" name="school_id" :value="old('school_id')" required autofocus />
+                <x-jet-label for="workspace_url" value="{{ __('Workspace URL') }}" />
+                <x-jet-input id="workspace_url" class="block mt-1 w-full" type="text" name="workspace_url" :value="old('workspace_url')" required autofocus />
             </div>
 
             <div class="mt-4">
