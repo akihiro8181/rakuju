@@ -17,7 +17,6 @@ class CreateClassworkTasksTable extends Migration
             $table->id();
             $table->foreignId('in_charge_id');
             $table->string("name");
-            $table->timestamp('deadline', 0);
             $table->integer('sort_num');
             $table->json('contents');
             $table->timestamps();

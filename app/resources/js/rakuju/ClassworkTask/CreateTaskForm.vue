@@ -8,13 +8,6 @@
                 <jet-input-error :message="form.error('name')" class="mt-2" />
             </div>
 
-            <!-- Deadline -->
-            <div class="col-span-5">
-                <jet-label for="deadline" value="Deadline" />
-                <jet-input id="deadline" type="date" class="mt-1 block w-full" v-model="form.deadline" />
-                <jet-input-error :message="form.error('deadline')" class="mt-2" />
-            </div>
-
             <!-- SortNum -->
             <div class="col-span-5">
                 <jet-label for="sort_num" value="SortNum" />
@@ -67,7 +60,6 @@
                 form: this.$inertia.form({
                     '_method': 'POST',
                     name: this.name,
-                    deadline: this.deadline,
                     sort_num: this.sort_num,
                     contents: this.contents,
                 }, {

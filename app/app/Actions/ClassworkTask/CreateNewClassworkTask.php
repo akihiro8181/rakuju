@@ -36,7 +36,6 @@ class CreateNewClassworkTask
         ClassworkTask::create([
             'in_charge_id' => $in_charge->id,
             'name' => $input['name'],
-            'deadline' => $input['deadline'],
             'sort_num' => $input['sort_num'],
             'contents' => json_decode($input['contents']),
         ]);
