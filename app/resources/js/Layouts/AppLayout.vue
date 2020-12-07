@@ -118,6 +118,10 @@
                     </div>
                     <div v-if="$page.user.roll_flag == 'ad'">
                         <in-charge-list />
+
+                        <jet-nav-link :href="route('schoolinformation')" :active="$page.currentRouteName == 'schoolinformation'">
+                            School-Information
+                        </jet-nav-link>
                     </div>
 
                     <!-- Hamburger -->

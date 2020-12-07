@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\ShowDashboard;
 use \App\Http\Controllers\ShowClassworkTask;
+use \App\Http\Controllers\ShowSchoolInformation;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', ShowDashboard::class)->name('dashboard');
+
+Route::middleware(['auth:sanctum', 'verified'])->get('/schoolinformation', ShowSchoolInformation::class)->name('schoolinformation');
+
+
 Route::middleware(['auth:sanctum', 'verified'])->get('/classwork-task/{in_charge}', ShowClassworkTask::class)->name('classwork-task')->where('in_charge', '[0-9]+');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/datatest', function () {
