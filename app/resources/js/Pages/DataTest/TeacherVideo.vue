@@ -4,37 +4,40 @@
             <h1>授業名：{{$page.user.school.name}}</h1>
         </div>
         <div class="left">
-            <transition name="list">
-                <div class="lab">
-                    <div class="showList" :class="{toRight:showStudentList}" @click="showList">
-                        <i class="icon-menu" :class="{close:showStudentList}"></i>
-                    </div>
-                    <div v-show="showStudentList" class="studentRoom">
-                        <div class="modal-header">学生一覧</div>
+            <div class="lab" :class="{toRight:showStudentList,toLeft:!showStudentList}">
+                <transition name="show">
+                    <div v-if="showStudentList" class="studentRoom">
+                        <div class="listHeader">学生一覧</div>
+                        <hr>
                         <div class="studentList">
                             <ol class="listContent">
-                                <transition name="show">
-                                    <li v-for="(value,key) in waitRoomStudentList" :key="key">
-                                        {{key+1}}．ID:{{value.id}}
-                                        <div class="listButton">
-                                            <div class="ok divButton" @click="joinOk(value.id)">承認</div>
-                                            <div class="no divButton" @click="joinNo(value.id)">拒否</div>
+                                <transition-group name="show">
+                                    <li v-for="(value,key) in roomStudentList" :key="'student'+key">
+                                        <div class="listNameTag">{{key+1}}．ID:{{value.id}}</div>
+                                        <div class="optionButton">
+                                            <div v-if="value.handUp" class="hand ob" @click="handDown(value.id)"></div>
+                                            <div class="videoCheck ob" @click="checkVideo(value.id)"></div>
+                                            <div class="audioSwitch ob" @click="mute(value.id)"></div>
+                                            <div class="out ob" @click="out(value.id)">&times;</div>
                                         </div>
                                     </li>
-                                </transition>
+                                </transition-group>
                             </ol>
                         </div>
                     </div>
+                </transition>
+                <div class="showList" :class="{abRight:showStudentList}" @click="showList">
+                    <i class="icon-menu" :class="{close:showStudentList}"></i>
                 </div>
-            </transition>
+            </div>
             <div class="my-video">
                 <div v-if="showBackG" class="backG"></div>
-                <video :srcObject.prop="videoStream" ref="localVideo" autoplay></video>
+                <video :srcObject.prop="videoStream" autoplay></video>
                 <div class="tools">
-                    <div :class="{active:videoEnable}" class="t1 t" ref="tVideo" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
-                    <div :class="{active:audioEnable}" class="t2 t" ref="tMicrophone" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
-                    <div :class="{active:share}" class="t3 t" ref="tScreenShare" @click="onScreenShare()"><span></span></div>
-                    <div :class="{active:diaglogFlag}" class="t5 t" ref="tLeave" @click="showLeaveDialog()"><span></span></div>
+                    <div :class="{active:videoEnable}" class="t1 t" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
+                    <div :class="{active:audioEnable}" class="t2 t" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
+                    <div :class="{active:share}" class="t3 t" @click="onScreenShare()"><span></span></div>
+                    <div :class="{active:diaglogFlag}" class="t5 t" @click="showLeaveDialog()"><span></span></div>
                 </div>
             </div>
         </div>
@@ -57,15 +60,15 @@
                 <hr>
                 <div class="waitList">
                     <ol class="waitListContent">
-                        <transition name="show">
-                            <li v-for="(value,key) in waitRoomStudentList" :key="key">
-                                {{key+1}}．ID:{{value.id}}
+                        <transition-group name="show">
+                            <li v-for="(value,key) in waitRoomStudentList" :key="'wait'+key">
+                                <div class="nameTag">{{key+1}}．ID:{{value.id}}</div>
                                 <div class="listButton">
                                     <div class="ok divButton" @click="joinOk(value.id)">承認</div>
                                     <div class="no divButton" @click="joinNo(value.id)">拒否</div>
                                 </div>
                             </li>
-                        </transition>
+                        </transition-group>
                     </ol>
                 </div>
             </div>
@@ -74,7 +77,20 @@
         <div class="dialog" ref="leaveDialog" v-if="diaglogFlag">
             <div class="modal-content">
                 <div class="modal-header">
-                <span class="close" ref="js_Close_Dialog">&times;</span>
+                <span class="closeButton" ref="js_Close_Dialog">&times;</span>
+                <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body">
+                <div class="content-text"><div class="warring"></div>退出しますか？</div>
+                <div class="okButton" @click="dialogOk">はい</div>
+                </div>
+            </div>
+        </div>
+        <!-- studentOut -->
+        <div class="dialog" ref="leaveDialog" v-if="diaglogFlag">
+            <div class="modal-content">
+                <div class="modal-header">
+                <span class="closeButton" ref="js_Close_Dialog">&times;</span>
                 <h2>ラクジュ</h2>
                 </div>
                 <div class="modal-body">
@@ -106,6 +122,7 @@
                 videoEnable: false,
                 audioEnable: false,
                 showStudentList:false,
+                checkWindow:undefined,
             }
         },
         methods: {
@@ -129,23 +146,49 @@
 
                     this.room.on('peerJoin', peerId => {
                         this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが入りました ===`,'systemMsg',''));
+                        this.roomStudentList.push({"id":peerId.substring(3),"stream":"","handUp":false,"audio":true});
                     });
                 
                     this.room.on('stream', async stream => {
-                        // streamList.set(stream.peerId,stream);
-                        // console.log(streamList);
+                        var has = false;
+                        this.roomStudentList.forEach((item,index)=>{
+                            if(item.id==stream.peerId.substring(3)){
+                                this.roomStudentList[index].stream = stream;
+                                has = true
+                            }
+                        })
+                        if(has){
+                            return
+                        }
+                        this.roomStudentList.push({"id":stream.peerId.substring(3),"stream":stream,"handUp":false,"audio":true});
                     });
             
                     this.room.on('data', ({ data, src }) => {
-                        if(src.substring(1,3)==='te'){
-                            this.createMsg('/images/bubble.png',src,data,'teacherMsg');
-                        }else{
-                            this.createMsg('/images/bubble.png',src,data,'studentMsg');
+                        if(data.type==100){
+                            if(data.cmd==2){
+                                this.roomStudentList.forEach((item,index)=>{
+                                    if(item.id==data.id){
+                                        this.roomStudentList[index].handUp = data.value;
+                                    }
+                                });
+                            }
+                        }
+                        if(data.type==200){
+                            if(data.roll_flag=='te'){
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'teacherMsg');
+                            }else{
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg');
+                            }
                         }
                     });
             
                     this.room.on('peerLeave', peerId => {
                         this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが退室しました ===\n`,'systemMsg',''));
+                        this.roomStudentList.forEach((item,index)=>{
+                            if(item.id==peerId.substring(3)){
+                                this.roomStudentList.splice(index, 1);
+                            }
+                        })
                     });
             
                     this.room.once('close', () => {
@@ -158,7 +201,7 @@
                         this.waitRoomStudentList.push({"id":src.substring(3)});
                     });
                     this.waitRoom.on('peerLeave',peerId =>{
-                        this.deleteJoinList(peerId.substring(3))
+                        this.deleteJoinList(peerId.substring(3));
                     });
                 }
             },
@@ -234,8 +277,8 @@
                     return;
                 }
                 var text = this.$refs.localText.innerText;
-                this.room.send(text);
-                this.createMsg('/images/bubble.png',this.peer.id,text,'teacherMsg');
+                this.room.send(this.jsonMsg(this.user.id,text));
+                this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'teacherMsg');
                 this.$refs.localText.innerText = '';
             
             },
@@ -264,7 +307,7 @@
                 }
                 return msg;
             },
-            createMsg(imgUrl,name,msgText,msgClass){
+            createMsg(imgUrl,name,roll_flag,msgText,msgClass){
                 var msg =  document.createElement('div');
                 msg.className='msg';
 
@@ -282,7 +325,7 @@
                 img.style.backgroundImage=`url(${imgUrl})`;
 
                 var msgName =  document.createElement('div');
-                msgName.innerText = name.substring(3);
+                msgName.innerText = name;
                 msgName.className = 'msgName';
                 //msg
                 var msgContent = this.addElement('div',msgText,'msgContent','msgContent');
@@ -295,7 +338,7 @@
                 msgHead.appendChild(msgTime);
                 msg.appendChild(msgHead);
                 msg.appendChild(msgContent);
-                if(name.substring(1,3) == 'te'){
+                if(roll_flag == 'te'){
                     theMsg.appendChild(msg);
                     theMsg.appendChild(img);
                 }else{
@@ -329,7 +372,58 @@
                 }else[
                     this.showStudentList = true
                 ]
-            }
+            },
+            handDown(id){
+                this.room.send({"type":100,"id":id,"cmd":2,"value":false});
+                this.roomStudentList.forEach((item,index)=>{
+                    if(item.id==id){
+                        this.roomStudentList[index].handUp = false;
+                    }
+                })
+            },
+            checkVideo(id){
+                // if(this.checkWindow != undefined){
+                //     var s = window.onload();
+                //     if(s!=""){
+                //         if(s.peerId.substring(3) == id){
+                //             if(!this.checkWindow.closed){
+                //                 this.checkWindow.focus();
+                //                 return
+                //             }
+                //         }
+                //     }
+                // }
+                window.onload = ()=>{
+                    return this.returnStream(id);
+                }
+                // console.log(window);
+                var height = screen.availHeight;
+                var width = screen.availWidth;
+                var windowWidth = width/8*3;
+                var windowHeight = height / 2;
+                var left = (width - windowWidth) / 2;
+                var url =  route('videoCheck',id);
+                this.checkWindow = window.open(url, "checkWindow",`top=${windowHeight/2},left=${left},width=640,height=450`);
+                // console.log(this.checkWindow);
+            },
+            mute(id){
+                this.room.send({"type":100,"id":id,"cmd":1});
+            },
+            out(id){
+                this.room.send({"type":100,"id":id,"cmd":0});
+            },
+            returnStream(id){
+                var stream;
+                this.roomStudentList.forEach((item,index)=>{
+                    if(item.id==id){
+                        stream = this.roomStudentList[index].stream;
+                    }
+                })
+                return stream;
+            },
+            jsonMsg(id,text){
+                return {"type":200,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
+            },
         },
         mounted(){
             window.__SKYWAY_KEY__ = '1f3076ca-36ad-4d4f-87d7-23b05a093ca3';
@@ -342,7 +436,7 @@
             });
 
             navigator.mediaDevices.getUserMedia({
-                video: true,
+                video:{ width: 1024, height: 760 },
                 audio: true
             }).then(stream => {
                 this.localStream = stream;
@@ -365,6 +459,9 @@
 </script>
 
 <style lang="css">
+.abRight{
+    right: 50px!important;
+}
 .icon-menu,
 .icon-menu::before,
 .icon-menu::after{
@@ -377,6 +474,11 @@
 }
 .icon-menu {
     position: relative;
+}
+.showList:hover .icon-menu,
+.showList:hover .icon-menu::after,
+.showList:hover .icon-menu::before{
+    background-color: white;
 }
 .icon-menu::before,
 .icon-menu::after {
@@ -405,12 +507,14 @@
 .show-enter, .show-leave-to{
     opacity: 0;
 }
-.list-enter-active, .list-leave-active{
+/* .list-enter-active,
+.list-leave-active{
     transition: all 0.8s;
 }
 .list-enter, .list-leave-to{
-    transform: translateX(-100%);
-}
+    transform: translateX(-350px);
+} */
+
 *{
     margin: 0;
     padding: 0;
@@ -450,13 +554,22 @@ h1{
     grid-row: 2/3;
     height: 100%;
 }
-.showList{
+.lab {
+    height: 100%;
+    width: 500px;
+    display: flex;
     position: absolute;
     z-index: 1;
-    /* background-image: url(/images/list.svg); */
-    background-size: 35px;
-    background-repeat: no-repeat;
-    background-position: center;
+    transition: all 0.8s;
+}
+.toRight{
+    transform: translateX(0);
+}
+.toLeft{
+    transform: translateX(-450px);
+}
+.showList{
+    position: absolute;;
     background-color: #7d93baff;
     width: 50px;
     height: 50px;
@@ -464,36 +577,81 @@ h1{
     display: flex;
     justify-content: center;
     align-items: center;
-}
-.toRight{
-    transform: translateX(350px);
+    right: 0;
 }
 .studentRoom{
     height: 100%;
-    width: 350px;
-    position: absolute;
+    width: 450px;
+    position: relative;
     background-color:  #7d93baff;
-    z-index: 1;
     padding: 5px;
     /* border: 1px solid #111; */
 }
+.studentRoom hr{
+    border-top-width: 3px;
+    border-color: darkblue;
+    margin: 5px 3px;
+}
+.listHeader{
+    font-size: 30px;
+    font-weight: bolder;
+    margin-left: 10px;
+}
 .studentList{
-    overflow: auto;
-    height: 100%;
-    /* padding: 50px; */
-    /* margin: 10px; */
-    /* width: 100%; */
-    /* position: relative; */
-    padding-left: 50px;
-    margin-top: 10px;
-    margin: 0 10px;
-    border-top: 1px solid;
+    overflow: overlay;
+    height: 89%;
 }
-.studentList ol{
-    font-size: 20px;
+.listContent{
+    margin-left: 10px;
 }
-.studentList ol li{
-    margin: 10px 0;
+.listContent li{
+    margin: 5px 0;
+    display: flex;
+}
+.listNameTag {
+    max-width: 250px;
+    font-size: 22px;
+    font-weight: bolder;
+    line-height: 40px;
+}
+.optionButton {
+    position: absolute;
+    right: 0;
+    display: flex;
+}
+.hand {
+    width: 40px;
+    height: 40px;
+    background-image: url(/images/open-hand.svg);
+}
+.videoCheck {
+    width: 40px;
+    height: 40px;
+    background-image: url(/images/video-camera.svg);
+}
+.audioSwitch {
+    width: 40px;
+    height: 40px;
+    background-image: url(/images/microphone.svg);
+}
+.out {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-weight: bolder;
+    line-height: 38px;
+    font-size: 40px;
+}
+.ob{
+    margin: 0 5px;
+    background-size: 65%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.ob:hover{
+    background-color: rgba(105,105,105,0.8);
 }
 .my-video{
     position: relative;
@@ -602,7 +760,7 @@ h1{
     box-shadow: inset 0 15px 0 0 white,
                 inset 0 -15px 0 0 white;
 }
-.listContent::-webkit-scrollbar-thumb{
+.studentList::-webkit-scrollbar-thumb{
     background: #404b73ff;
     border-radius: 12px;
     box-shadow: inset 0 15px 0 0 #7d93baff,
@@ -613,7 +771,7 @@ h1{
     background: #707070; 
 }
 
-.listContent::-webkit-scrollbar-thumb:hover{
+.studentList::-webkit-scrollbar-thumb:hover{
     background: wheat; 
 }
 
@@ -779,15 +937,15 @@ h1{
         opacity:1
     }
 }
-.close {
+.closeButton {
     color: white;
     float: right;
     font-size: 30px;
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.closeButton:hover,
+.closeButton:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
@@ -862,7 +1020,7 @@ h2{
 .waitListContent {
     height: 100%;
     padding: 5px 20px;
-    overflow: auto;
+    overflow: overlay;
     font-size: 24px;
 }
 .waitListContent::-webkit-scrollbar-thumb{
@@ -872,18 +1030,21 @@ h2{
                 inset 0 -10px 0 0 powderblue;
 }
 .waitListContent li{
-    margin: 5px;
+    margin: 5px 0;
     display: flex;
+    position: relative;
 }
 .listButton {
     display: flex;
     position: absolute;
-    right: 15px;
+    right: 0;
+    width: 36%;
 }
 .divButton{
-    margin: 0px 15px;
+    margin:0 5px;
     padding: 0 10px;
     cursor: pointer;
+    min-width: 68px;
 }
 .ok{
     background-color: green;
@@ -898,5 +1059,9 @@ h2{
 }
 .no:hover{
     background-color: red;
+}
+.nameTag{
+    max-width: 64%;
+    overflow: hidden;
 }
 </style>

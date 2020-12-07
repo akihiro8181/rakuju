@@ -47,3 +47,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/studentVideo', function (
 Route::middleware(['auth:sanctum', 'verified'])->get('/teacherVideo', function () {
     return Inertia\Inertia::render('DataTest/TeacherVideo');
 })->name('teacherVideo');
+//check video
+Route::middleware(['auth:sanctum', 'verified'])->get('/videoCheck/{id}', function () {
+    return Inertia\Inertia::render('DataTest/VideoCheck');
+})->name('videoCheck');
