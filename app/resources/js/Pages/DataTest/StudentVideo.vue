@@ -6,17 +6,17 @@
         <div class="left">
             <div class="teacher-video">
                 <div v-if="showTBG" class="backG"></div>
-                <video :srcObject.prop="videoStream" ref="localVideo" poster="/images/user.png" autoplay></video>
+                <video :srcObject.prop="teacherVideoStream" autoplay></video>
             </div>
             <div class="my-video">
                 <div v-if="showBackG" class="backG"></div>
-                <video :srcObject.prop="videoStream" ref="localVideo" autoplay></video>
+                <video :srcObject.prop="localVideoStream" autoplay></video>
                 <div class="tools">
-                    <div :class="{active:videoEnable}" class="t1 t" ref="tVideo" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
-                    <div :class="{active:audioEnable}" class="t2 t" ref="tMicrophone" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
-                    <div :class="{active:share}" class="t3 t" ref="tScreenShare" @click="onScreenShare()"><span></span></div>
-                    <div :class="{active:handUp}" class="t4 t" ref="tReaction"><span></span></div>
-                    <div :class="{active:diaglogFlag}" class="t5 t" ref="tLeave" @click="showLeaveDialog()"><span></span></div>
+                    <div :class="{active:videoEnable}" class="t1 t" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
+                    <div :class="{active:audioEnable}" class="t2 t" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
+                    <div :class="{active:share}" class="t3 t" @click="onScreenShare()"><span></span></div>
+                    <div :class="{active:handUp}" class="t4 t" @click="hand()"><span></span></div>
+                    <div :class="{active:diaglogFlag}" class="t5 t" @click="showLeaveDialog()"><span></span></div>
                 </div>
             </div>
         </div>
@@ -101,7 +101,8 @@
             return{
                 waitDialog:true,                //承認待ち用
                 localStream:undefined,           //カメラ用
-                videoStream: undefined,          //画面上に表示するストリーム
+                localVideoStream: undefined,          //画面上に表示するストリーム
+                teacherVideoStream:undefined,
                 share:false,                     //share flag
                 CLASS_CODE:'123',                //授業Code
                 peer:undefined,                //Peerのオブジェクト
@@ -126,15 +127,14 @@
                 
                 if(this.waitRoom!=undefined){
                     this.waitRoom.once('open', () => {
-                        this.waitRoom.send(`wait${this.peer.id.substring(3)}`)
+                        this.waitRoom.send(`wait${this.user.id}`)
                     });
                     this.waitRoom.on('peerJoin', peerId => {
-                        this.waitRoom.send(`wait${this.peer.id.substring(3)}`)
+                        this.waitRoom.send(`wait${this.user.id}`)
                     });
                     this.waitRoom.on('data', ({ data, src }) => {
                         if(data.id==this.user.id){
                             if(data.res=="ok"){
-                                var msg =  document.createElement('div');
                                 this.$refs.dialogContent.innerHTML = "<div class='content-text'>承認されました</div>";
                                 this.waitDialog=false
                                 this.waitRoom.close();
@@ -153,22 +153,22 @@
                 }
             },
             joinClassRoom(){
-                // navigator.mediaDevices.getUserMedia({
-                //     video: true,
-                //     audio: true
-                // }).then(stream => {
-                //     this.localStream = stream;
-                //     this.videoStream = this.localStream;
-                // }).catch(e=>{
-                //     console.log(`${e.type}:${e}`);
-                //     this.showBackG = true;
-                // });
+                navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                }).then(stream => {
+                    this.localStream = stream;
+                    this.localVideoStream = this.localStream;
+                }).catch(e=>{
+                    console.log(`${e.type}:${e}`);
+                    this.showBackG = true;
+                });
 
                 this.room = this.peer.joinRoom(this.CLASS_CODE,{
                     mode: 'sfu',
-                    stream: this.videoStream,
+                    stream: this.localVideoStream,
                 });
-                
+                console.log(this.room);
                 if(this.room!=undefined){
                     // roomt on lisener
                     this.room.once('open', () => {
@@ -180,20 +180,40 @@
                     });
                 
                     this.room.on('stream', async stream => {
-                        // streamList.set(stream.peerId,stream);
-                        // console.log(streamList);
+                        alert("ok");
+                        if(stream.peerId.substring(1,2)=="te"){
+                            this.teacherVideoStream = stream;
+                        }
                     });
             
                     this.room.on('data', ({ data, src }) => {
-                        if(src.substring(1,3)==='te'){
-                            this.createMsg('/images/bubble.png',src,data,'teacherMsg');
-                        }else{
-                            this.createMsg('/images/bubble.png',src,data,'studentMsg');
+                        if(data.type==100){
+                            if(data.cmd==2){
+                                this.handUp = data.value;
+                            }
+                            switch(data.cmd) {
+                                case 0:
+                                    this.room.close()
+                                    break;
+                                case 1:
+                                    
+                                    break;
+                                case 2:
+                                    this.handUp = data.value;
+                                    break;
+                            } 
+                        }
+                        if(data.type==200){
+                            if(data.roll_flag=='te'){
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'teacherMsg');
+                            }else{
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg');
+                            }
                         }
                     });
             
                     this.room.on('peerLeave', peerId => {
-                        this.appendMsg(addElement('div',`=== ${peerId.substring(3)}さんが退室しました ===\n`,'systemMsg',''));                    });
+                        this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが退室しました ===\n`,'systemMsg',''));                    });
             
                     this.room.once('close', () => {
                         window.close()
@@ -206,26 +226,26 @@
                 }
                 //video
                 if(media===0){
-                    if(this.videoStream.getVideoTracks()[0].enabled){
+                    if(this.localVideoStream.getVideoTracks()[0].enabled){
                         //close the video
-                        this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                        this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
                         this.showBackG = true;
                         this.videoEnable = true;
                     }else{
                         //open the video
-                        this.videoStream.getVideoTracks().forEach( track => (track.enabled = true));
+                        this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = true));
                         this.showBackG = false;
                         this.videoEnable = false;
                     }
                 }
                 //mic
                 if(media===1){
-                    if(this.videoStream.getAudioTracks()[0].enabled){
+                    if(this.localVideoStream.getAudioTracks()[0].enabled){
                         this.audioEnable = true;
-                        this.videoStream.getAudioTracks().forEach((track) => (track.enabled = false));
+                        this.localVideoStream.getAudioTracks().forEach((track) => (track.enabled = false));
                     }else{
                         this.audioEnable = false;
-                        this.videoStream.getAudioTracks().forEach( track => (track.enabled = true));
+                        this.localVideoStream.getAudioTracks().forEach( track => (track.enabled = true));
                     }
                 }
             },
@@ -234,33 +254,33 @@
                     return
                 }
                 if(this.share){
-                    this.videoStream.getVideoTracks()[0].stop();
+                    this.localVideoStream.getVideoTracks()[0].stop();
                     this.showLocalVideo();
                 }else{
                     navigator.mediaDevices.getDisplayMedia({ 
                         video: true,
                     }).then(stream => {
                         this.share=true;
-                        if(!this.videoStream.getVideoTracks()[0].enabled){
-                            this.videoStream=stream;
-                            this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                        if(!this.localVideoStream.getVideoTracks()[0].enabled){
+                            this.localVideoStream=stream;
+                            this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
                         }else{
-                            this.videoStream=stream;
+                            this.localVideoStream=stream;
                         }
                         stream.getVideoTracks()[0].addEventListener('ended', () => {this.showLocalVideo()});
-                        this.room.replaceStream(this.videoStream);
+                        this.room.replaceStream(this.localVideoStream);
                     }).catch(e=>{console.log("err:"+e)});
                 }
             },
             showLocalVideo(){
                 this.share=false;
-                if(!this.videoStream.getVideoTracks()[0].enabled){
-                    this.videoStream = this.localStream;
-                    this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                if(!this.localVideoStream.getVideoTracks()[0].enabled){
+                    this.localVideoStream = this.localStream;
+                    this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
                 }else{
-                    this.videoStream = this.localStream;
+                    this.localVideoStream = this.localStream;
                 }
-                this.room.replaceStream(this.videoStream);
+                this.room.replaceStream(this.localVideoStream);
             },
             onClickSend(){
                 if(!this.peer.open){
@@ -271,8 +291,8 @@
                     return;
                 }
                 var text = this.$refs.localText.innerText;
-                this.room.send(text);
-                this.createMsg('/images/bubble.png',this.peer.id,text,'studentMsg');
+                this.room.send(this.jsonMsg(this.user.id,text));
+                this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'studentMsg');
                 this.$refs.localText.innerText = '';
             },
             showLeaveDialog(){
@@ -300,7 +320,7 @@
                 }
                 return msg;
             },
-            createMsg(imgUrl,name,msgText,msgClass){
+            createMsg(imgUrl,name,roll_flag,msgText,msgClass){
                 var msg =  document.createElement('div');
                 msg.className='msg';
 
@@ -317,7 +337,7 @@
                 img.style.backgroundImage=`url(${imgUrl})`;
 
                 var msgName =  document.createElement('div');
-                msgName.innerText = name.substring(3);
+                msgName.innerText = name;
                 msgName.className = 'msgName';
                 //msg
                 var msgContent = this.addElement('div',msgText,'msgContent','msgContent');
@@ -330,7 +350,7 @@
                 msgHead.appendChild(msgTime);
                 msg.appendChild(msgHead);
                 msg.appendChild(msgContent);
-                if(name.substring(1,3) == 'te'){
+                if(roll_flag == 'te'){
                     theMsg.appendChild(msg);
                     theMsg.appendChild(img);
                 }else{
@@ -345,6 +365,22 @@
             },
             joinCancel(){
                 this.waitRoom.close()  
+            },
+            hand(){
+                if(this.handUp){
+                    this.handUp = false;
+                }else{
+                    this.handUp = true;
+                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,"🖐",'studentMsg');
+                    this.room.send(this.jsonMsg(this.user.id,"🖐"));
+                }
+                this.room.send(this.jsonCmd(this.user.id,2));
+            },
+            jsonMsg(id,text){
+                return {"type":200,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
+            },
+            jsonCmd(id,cmd){
+                return {"type":100,"id":id,"cmd":cmd,"value":this.handUp};
             }
         },
         mounted(){
@@ -356,16 +392,6 @@
                 key: window.__SKYWAY_KEY__,
                 debug: 3,
             });
-            navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true,
-                }).then(stream => {
-                    this.localStream = stream;
-                    this.videoStream = this.localStream;
-                }).catch(e=>{
-                    console.log(`${e.type}:${e}`);
-                    this.showBackG = true;
-                });
 
             this.peer.on('open',this.init);
 
@@ -424,7 +450,7 @@ h1{
     height: 100%;
 }
 .teacher-video{
-    height: 65%;
+    height: 61%;
     position: relative;
 }
 .teacher-video video{
@@ -432,7 +458,7 @@ h1{
     width: 100%;
 }
 .my-video{
-    height: 35%;
+    height: 39%;
     position: relative;
 }
 .backG{
@@ -447,13 +473,13 @@ h1{
     background-size: 30%;
 }
 .my-video video{
-    height: 80%;
+    height: 70%;
     width: 100%;
 }
 .tools{
     display: flex;
     justify-content: center;
-    height: 20%;
+    height: 30%;
     align-items: center;
 }
 .t{
@@ -505,7 +531,7 @@ h1{
     background-image: url(/images/screen.svg);
 }
 .t4{
-    background-image: url(/images/reaction.svg);
+    background-image: url(/images/open-hand.svg);
 }
 .t5{
     background-image: url(/images/out.svg);
