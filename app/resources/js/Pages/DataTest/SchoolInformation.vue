@@ -8,22 +8,27 @@
                             <div class="text-2xl">
                                 学校情報
                             </div>
-                            <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'" class="flex space-x-4">
-                                <jet-button @click.native="showUpdateForm(classwork_task.id)">
+                            <div v-if="$page.user.roll_flag == 'ad'" class="flex space-x-4">
+                                <jet-button @click.native="showUpdateForm">
                                     ⚙
                                 </jet-button>
                             </div>
-                            <div>
-                                学校名:{{$page.user.school.name}}
+
+                            <div v-if="show_update_form == true">
+                                <update-information-form :school="$page.user.school" />
+                                
                             </div>
 
-                            <div>
-                               ワークスペースURL:{{$page.user.school.workspace_url}}
+                            <div v-else>
+                                <div>
+                                    学校名:{{$page.user.school.name}}
+                                </div>
+
+                                <div>
+                                ワークスペースURL:{{$page.user.school.workspace_url}}
+                                </div>
                             </div>
 
-                            <div>
-                                学校管理者名:
-                            </div>
                         </div>
 
                         <div>
@@ -43,10 +48,26 @@
 
 <script>
     import AppLayout from './../../Layouts/AppLayout'
+    import JetButton from './../../Jetstream/Button'
+    import UpdateInformationForm from '../../rakuju/SchoolInformation/UpdateInformationForm'
 
     export default {
         components: {
             AppLayout,
+            JetButton,
+            UpdateInformationForm,
         },
+        
+        data(){
+            return{
+                show_update_form: false,
+            }
+        },
+        
+        methods: {
+            showUpdateForm() {
+                this.show_update_form = this.show_update_form == true ? false : true;
+            },
+        } 
     }
 </script>

@@ -48,6 +48,32 @@
                                             API Tokens
                                         </jet-dropdown-link>
 
+                                        <!-- School Information -->
+                                        <div v-if="$page.user.roll_flag == 'st' || $page.user.roll_flag == 'te'">
+                                            <jet-dropdown-link :href="route('schoolinformation')">
+                                                School-Information
+                                            </jet-dropdown-link>              
+                                        </div>                                        
+
+                                        <div class="border-t border-gray-100"></div>
+
+
+
+                                        <div v-if="$page.user.roll_flag == 'ad'">
+                                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                                Manage School
+                                            </div>                                        
+                                            <jet-dropdown-link :href="route('schoolinformation')">
+                                                School-Information
+                                            </jet-dropdown-link>
+                                            <jet-dropdown-link :href="route('schoolinformation')">
+                                                Add Classwork
+                                            </jet-dropdown-link>
+                                            <jet-dropdown-link :href="route('schoolinformation')">
+                                                Add User
+                                            </jet-dropdown-link>                                                                                        
+                                        </div>
+
                                         <div class="border-t border-gray-100"></div>
 
                                         <!-- Team Management -->
@@ -122,6 +148,16 @@
                         <jet-nav-link :href="route('schoolinformation')" :active="$page.currentRouteName == 'schoolinformation'">
                             School-Information
                         </jet-nav-link>
+
+                        <jet-nav-link :href="route('manageuser')" :active="$page.currentRouteName == 'manageuser'">
+                            Manage-User
+                        </jet-nav-link>
+
+                        <jet-nav-link :href="route('manageclasswork')" :active="$page.currentRouteName == 'manageclasswork'">
+                            Manage-Classwork
+                        </jet-nav-link>
+
+
                     </div>
 
                     <!-- Hamburger -->
