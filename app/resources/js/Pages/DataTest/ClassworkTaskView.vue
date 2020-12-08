@@ -53,6 +53,13 @@
                                                 {{content.text}}
                                             </a>
                                         </div>
+                                        <div v-else-if="content.type == 'homework'">
+                                            <!-- <div>ファイル名：<span v-for="file_name in parseFileNames(contents.file_name)" :key="file_name">{{file_name}}, </span></div> -->
+                                            <inertia-link :href="'/homework/' + classwork_task.id">提出ページへ</inertia-link>
+                                            <!-- <a :href="route('homework') + '/' + classwork_task.id" class="underline text-blue-600 visited:text-purple-600"> -->
+                                                <!-- 提出ページへ -->
+                                            <!-- </a> -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -152,6 +159,11 @@
                         this.confirmingUserDeletion = false;
                     }
                 })
+            },
+
+            // ファイル名を配列に直す
+            parseFileNames(file_name) {
+                return file_name.split('|');
             },
         },
     }
