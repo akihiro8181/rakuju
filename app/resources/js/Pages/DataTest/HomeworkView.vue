@@ -5,7 +5,7 @@
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div>
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                            {{$page.storage}}<br>
+                            {{$page.files}}<br>
                             ---<br>
                             <div>ファイル名：<span v-for="file_name in parseFileNames($page.file_name[0])" :key="file_name">{{file_name}}, </span></div>
                                                 
