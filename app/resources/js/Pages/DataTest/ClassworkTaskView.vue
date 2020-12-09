@@ -21,11 +21,13 @@
                     <div v-if="show_create_form" class="p-6 sm:px-20 bg-white border-b border-gray-200">
                         <create-task-form :in_charge_id="$page.in_charge.id" />
                     </div>
-                    <div v-if="$page.in_charge.classwork_tasks == []">
+                    <!-- コンテンツが１つも追加されていない場合 -->
+                    <div v-if="!$page.in_charge.classwork_tasks.length">
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
                             $page.in_charge.classwork_tasksにデータが存在しません
                         </div>
                     </div>
+                    <!-- コンテンツが１つ以上ある場合 -->
                     <div v-else v-for="classwork_task in $page.in_charge.classwork_tasks" :key="classwork_task.sort_num">
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
                             <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'" class="flex space-x-4">
