@@ -6,7 +6,7 @@ use App\Http\Controllers\API\CreateClassworkTask;
 use App\Http\Controllers\API\UpdateClassworkTask;
 use App\Http\Controllers\API\DeleteClassworkTask;
 use App\Http\Controllers\API\UpdateSchoolInformation;
-
+use App\Http\Controllers\API\UploadHomework;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +28,4 @@ Route::middleware('auth:sanctum')->put('/classwork-task/{classwork_task}', Updat
 Route::middleware('auth:sanctum')->delete('/classwork-task/{classwork_task}', DeleteClassworkTask::class)->where('classwork_task', '[0-9]+');
 
 Route::middleware('auth:sanctum')->put('/schoolinformation/{school}', UpdateSchoolInformation::class)->where('school', '[0-9]+');
+Route::middleware('auth:sanctum')->post('/homework/{classwork_task}', UploadHomework::class)->where('classwork_task', '[0-9]+');

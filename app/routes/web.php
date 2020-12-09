@@ -6,6 +6,7 @@ use \App\Http\Controllers\ShowClassworkTask;
 use \App\Http\Controllers\ShowSchoolInformation;
 use \App\Http\Controllers\ShowManageUser;
 use \App\Http\Controllers\ShowManageClasswork;
+use \App\Http\Controllers\ShowHomework;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,9 +29,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/schoolinformation', ShowS
 Route::middleware(['auth:sanctum', 'verified'])->get('/manageuser', ShowManageUser::class)->name('manageuser');
 Route::middleware(['auth:sanctum', 'verified'])->get('/manageclasswork', ShowManageClasswork::class)->name('manageclasswork');
 
-
-
 Route::middleware(['auth:sanctum', 'verified'])->get('/classwork-task/{in_charge}', ShowClassworkTask::class)->name('classwork-task')->where('in_charge', '[0-9]+');
+Route::middleware(['auth:sanctum', 'verified'])->get('/homework/{classwork_task}', ShowHomework::class)->name('homework')->where('classwork_task', '[0-9]+');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/datatest', function () {
     return Inertia\Inertia::render('DataTest/DataTest');
@@ -57,3 +57,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/studentVideo', function (
 Route::middleware(['auth:sanctum', 'verified'])->get('/teacherVideo', function () {
     return Inertia\Inertia::render('DataTest/TeacherVideo');
 })->name('teacherVideo');
+//check video
+Route::middleware(['auth:sanctum', 'verified'])->get('/videoCheck/{id}', function () {
+    return Inertia\Inertia::render('DataTest/VideoCheck');
+})->name('videoCheck');
