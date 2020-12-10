@@ -20,8 +20,13 @@ class UploadHomework extends Controller
      */
     public function __invoke(Request $request, ClassworkTask $classwork_task)
     {
-        app(ActionUploadHomework::class)->upload($request->user(), $classwork_task, $request->file("homework"));
+        $files = $request->file("files");
 
+        // リクエスト内のファイルを一つずつ取り出して保存処理を行う
+        foreach ($files as $file) {
+            app(ActionUploadHomework::class)->upload($request->user(), $classwork_task, $file);
+        }
+        
         return back(303)->with('flash', [
             'message' => "upload Homework",
         ]);

@@ -5,7 +5,8 @@
             <div class="col-span-6 sm:col-span-4">
                 <input type="file"
                             ref="homework"
-                            @change="uploadHomeworkPreview">
+                            @change="uploadHomeworkPreview"
+                            multiple>
 
                 <jet-input-error :message="form.error('homework')" class="mt-2" />
             </div>
@@ -62,14 +63,20 @@
         },
 
         methods: {
+            // アップロードボタン
             uploadHomework() {
                 if (this.$refs.homework) {
-                    this.form.homework = this.$refs.homework.files[0]
-                }
+                    this.form.homework = this.$refs.homework.files
 
-                this.form.post('/api/homework/' + this.classwork_task_id, {
-                    preserveScroll: true
-                });
+                    var data = new FormData()
+                    for( var i = 0; i < this.form.homework.length; i++ ){
+                        let file = this.form.homework[i]
+                        console.log(file)
+                        data.append('files[' + i + ']', file)
+                    }
+
+                    this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
+                }
             },
 
             uploadHomeworkPreview() {
