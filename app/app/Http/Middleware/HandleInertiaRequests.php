@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\School;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -43,35 +45,59 @@ class HandleInertiaRequests extends Middleware
             return parent::share($request);
         }
 
-        $user = Auth::user();   // ログイン中のユーザー
-
-        // ユーザーが所属する学校の情報を取得
-        $user->school;
-
-        if ($user->roll_flag == 'st') {
-            // 受講中の授業を取得
-            foreach ($user->attendances as $attendance) {
-                // 授業情報を取得
-                $attendance->classwork;
-            }
-        } elseif ($user->roll_flag == 'te') {
-            // 教師の場合の処理
-            foreach ($user->tutors as $tutor) {
-                // 授業情報を取得
-                $tutor->classwork;
-            }
-        } elseif ($user->roll_flag == 'ad') {
-            // 管理者の場合の処理
-            // 授業情報を取得
-            foreach ($user->school->classworks as $classwork) {
-                foreach ($classwork->in_charges as $in_charge) {
-                    $in_charge->teacher;
-                }
-            }
-        }
+        // test用データなので最終的には削除する
+        // 対象のページ
+        // app/resources/js/Pages/DataTest/TeacherVideo.vue
+        // app/resources/js/Pages/DataTest/StudentVideo.vue
+        $request->user()->school;
         
         return array_merge(parent::share($request), [
-            //
+            // ユーザーが所属する学校の情報を取得
+            'school' => function () use ($request) {
+                return User::find($request->user()->id)->school->only('name');
+            },
+            'classworks' => function () use ($request) {
+                $user = User::find($request->user()->id);
+                $classworks = array();
+
+                if ($user->roll_flag == 'st') {
+                    // 受講中の授業を取得
+                    foreach ($user->attendances as $attendance) {
+                        // 授業情報を取得
+                        array_push($classworks, array(
+                            "id" => $attendance->id,
+                            "name" => $attendance->classwork->name,
+                        ));
+                    }
+                } elseif ($user->roll_flag == 'te') {
+                    // 教師の場合の処理
+                    foreach ($user->tutors as $tutor) {
+                        // 授業情報を取得
+                        array_push($classworks, array(
+                            "id" => $tutor->id,
+                            "name" => $tutor->classwork->name,
+                        ));
+                    }
+                } elseif ($user->roll_flag == 'ad') {
+                    // 管理者の場合の処理
+                    // 授業情報を取得
+                    foreach ($user->school->classworks as $classwork) {
+                        $in_charges = array();
+                        foreach ($classwork->in_charges as $in_charge) {
+                            array_push($in_charges, array(
+                                "id" => $in_charge->id,
+                                "name" => $in_charge->teacher->name,
+                            ));
+                        }
+                        array_push($classworks, array(
+                            "id" => $classwork->id,
+                            "name" => $classwork->name,
+                            "in_charges" => $in_charges,
+                        ));
+                    }
+                }
+                return $classworks;
+            },
         ]);
     }
 }

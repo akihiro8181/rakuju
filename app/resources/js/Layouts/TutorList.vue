@@ -2,9 +2,9 @@
     <div>
         <p>TutorList</p>
         <ul id="classwork-tasks">
-            <li v-for="tutor in $inertia.page.props.user.tutors" :key="tutor.id">
-                <jet-nav-link :href="'/classwork-task/'+tutor.id" :active="$page.currentRouteName == 'classwork-task'">
-                    {{ tutor.classwork.name }}
+            <li v-for="classwork in $inertia.page.props.classworks" :key="classwork.id">
+                <jet-nav-link :href="'/classwork-task/'+classwork.id" :active="$inertia.page.url == '/classwork-task/'+classwork.id">
+                    {{ classwork.name }}
                 </jet-nav-link>
             </li>
         </ul>

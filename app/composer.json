@@ -41,7 +41,13 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "app/vendor/laravel/jetstream/src/Http/Middleware/ShareInertiaData.php"
+        ],
+        "files": [
+            "app/Http/Middleware/ShareInertiaData.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
