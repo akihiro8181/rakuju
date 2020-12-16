@@ -44,6 +44,12 @@ class HandleInertiaRequests extends Middleware
         if (Auth::guard()->guest()) {
             return parent::share($request);
         }
+
+        // test用データなので最終的には削除する
+        // 対象のページ
+        // app/resources/js/Pages/DataTest/TeacherVideo.vue
+        // app/resources/js/Pages/DataTest/StudentVideo.vue
+        $request->user()->school;
         
         return array_merge(parent::share($request), [
             // ユーザーが所属する学校の情報を取得

@@ -19,7 +19,7 @@ class ShowSchoolInformation extends Controller
     {
 
         return Inertia::render('DataTest/SchoolInformation', [
-            // 
+            'school' => School::find($request->user()->school_id)->only(['id', 'name', 'workspace_url']),
         ]);
     }
 }

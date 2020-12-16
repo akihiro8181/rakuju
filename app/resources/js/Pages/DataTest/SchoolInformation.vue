@@ -15,17 +15,17 @@
                             </div>
 
                             <div v-if="show_update_form == true">
-                                <update-information-form :school="$page.user.school" />
+                                <update-information-form :school="$page.school" />
                                 
                             </div>
 
                             <div v-else>
                                 <div>
-                                    学校名:{{$page.user.school.name}}
+                                    学校名:{{$page.school.name}}
                                 </div>
 
                                 <div>
-                                ワークスペースURL:{{$page.user.school.workspace_url}}
+                                ワークスペースURL:{{$page.school.workspace_url}}
                                 </div>
                             </div>
 
