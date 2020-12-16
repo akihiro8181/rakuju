@@ -12,7 +12,7 @@
                             </inertia-link>
                         </div>
                         <!-- school name -->
-                        <div>{{$page.user.school.name}}</div>
+                        <div>{{$page.school.name}}</div>
                         <div>{{$page.user.roll_flag}}</div>
                         <!-- Settings Dropdown -->
                         <div class="flex-grow">
