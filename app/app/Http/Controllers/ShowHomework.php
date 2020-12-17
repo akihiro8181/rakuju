@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ClassworkTask;
+use App\Models\Classwork;
 use Illuminate\Support\Str;
 
 class ShowHomework extends Controller
@@ -29,6 +30,7 @@ class ShowHomework extends Controller
             });
 
         return Inertia::render('DataTest/HomeworkView', [
+            'classwork_name' => ClassworkTask::find($classwork_task->id)->in_charge->classwork->name,
             'classwork_task' => ClassworkTask::find($classwork_task->id), 
             'files' => $files, 
             'file_name' => array_column($classwork_task->contents, 'file_name'),
