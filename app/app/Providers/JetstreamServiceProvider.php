@@ -48,12 +48,15 @@ class JetstreamServiceProvider extends ServiceProvider
         });
 
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('school_id', School::where('workspace_url', $request->workspace_url)->first()->id)->where('login_number', $request->login_number)->first();
-        
-            if ($user &&
-                Hash::check($request->password, $user->password)) {
-                return $user;
+            $school = School::where('workspace_url', $request->workspace_url)->first();
+            if ($school) {
+                $user = User::where('school_id', $school->id)->where('login_number', $request->login_number)->first();
+                if ($user &&
+                    Hash::check($request->password, $user->password)) {
+                    return $user;
+                }
             }
+        
         });
     }
 
