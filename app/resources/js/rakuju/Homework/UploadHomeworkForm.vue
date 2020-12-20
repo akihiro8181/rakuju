@@ -5,18 +5,17 @@
             <div class="col-span-6 sm:col-span-4">
                 <input type="file"
                             ref="homework"
-                            @change="uploadHomeworkPreview">
-
-                <jet-input-error :message="form.error('homework')" class="mt-2" />
+                            @change="uploadHomeworkPreview"
+                            multiple>
             </div>
         </template>
 
         <template #actions>
-            <jet-action-message :on="form.recentlySuccessful" class="mr-3">
-                Uploaded.
+            <jet-action-message :on="sending" class="mr-3">
+                Uploading…
             </jet-action-message>
 
-            <jet-button :class="{ 'opacity-25': form.processing || !homeworkPreview }" :disabled="form.processing || !homeworkPreview">
+            <jet-button :class="{ 'opacity-25': sending || !homeworkPreview }" :disabled="sending || !homeworkPreview">
                 Upload
             </jet-button>
         </template>
@@ -49,27 +48,28 @@
 
         data() {
             return {
-                form: this.$inertia.form({
-                    '_method': 'POST',
-                    homework: null,
-                }, {
-                    bag: 'uploadHomework',
-                    resetOnSuccess: false,
-                }),
-
                 homeworkPreview: null,
+                sending: false,
             }
         },
 
         methods: {
+            // アップロードボタン
             uploadHomework() {
                 if (this.$refs.homework) {
-                    this.form.homework = this.$refs.homework.files[0]
-                }
+                    this.sending = true
+                    var data = new FormData()
+                    for( var i = 0; i < this.$refs.homework.files.length; i++ ){
+                        let file = this.$refs.homework.files[i]
+                        console.log(file)
+                        data.append('files[' + i + ']', file)
+                    }
 
-                this.form.post('/api/homework/' + this.classwork_task_id, {
-                    preserveScroll: true
-                });
+                    this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
+                    .then(() => {
+                        this.sending = false
+                    })
+                }
             },
 
             uploadHomeworkPreview() {

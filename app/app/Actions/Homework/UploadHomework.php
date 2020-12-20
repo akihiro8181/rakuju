@@ -14,14 +14,14 @@ use Illuminate\Http\UploadedFile;
 class UploadHomework
 {
     /**
-     * Create a newly registered classwork task.
+     * ファイルを保存する
      *
      * @param  App\Models\User  $user
      * @param  App\Models\InCharge  $in_charge
-     * @param  Illuminate\Http\UploadedFile  $input
+     * @param  Illuminate\Http\UploadedFile  $file
      * @return \App\Models\User
      */
-    public function upload(User $user, ClassworkTask $classwork_task, UploadedFile $files)
+    public function upload(User $user, ClassworkTask $classwork_task, UploadedFile $file)
     {
         // ユーザー権限の認証
         // Gate::forUser($user)->authorize('create', $in_charge);
@@ -34,6 +34,6 @@ class UploadHomework
         //     'contents' => ['required', 'string'],
         // ])->validate();
 
-        $files->storeAs('public/' . $classwork_task->id . "/" . $user->id, $files->getClientOriginalName());
+        $file->storeAs('public/' . $classwork_task->id . "/" . $user->id, $file->getClientOriginalName());
     }
 }
