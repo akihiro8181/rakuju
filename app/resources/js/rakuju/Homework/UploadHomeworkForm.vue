@@ -1,32 +1,40 @@
 <template>
     <div>
-        <form @submit.prevent="uploadHomework">
+        <form @submit.prevent="uploadHomework" enctype="multipart/form-data">
             <div class="shadow overflow-hidden">
                 <div @dragenter="dragEnter"
                             @dragleave="dragLeave"
                             @drop.prevent="dropFile" 
                             @dragover.prevent>
                     <!-- <div class="px-4 py-5 bg-white pointer-events-none" :class="[{'border-blue-300 border-4': isFileEnter}]"> -->
-                    <div class="px-4 py-5 bg-white" :class="[{'border-blue-300 border-4': isFileEnter}]">
-                            <!-- Input Homework -->
-                            <input type="file"
-                                        ref="homework"
-                                        @change="uploadHomeworkPreview"
-                                        multiple>
-
-                            <jet-input-error :message="form.error('homework')" class="mt-2" />
+                    <div class="px-4 py-10 bg-white box-border text-gray-400 text-center" :class="[{'border-blue-300 border-4': isFileEnter}]">
+                        ここにファイルをドラッグアンドドロップしてください
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end px-4 py-3 bg-gray-50 text-right sm:px-6">
-                    <jet-action-message :on="sending" class="mr-3">
-                        Uploading…
-                    </jet-action-message>
-
-                    <jet-button :class="{ 'opacity-25': sending || !homeworkPreview }" :disabled="sending || !homeworkPreview">
-                        Upload
+                <div class="flex items-center justify-between space-x-4 px-2 py-3 bg-gray-50 text-right">
+                    <!-- Input Homework -->
+                    <input type="file"
+                                ref="homework"
+                                @change="uploadHomeworkPreview"
+                                hidden
+                                multiple>
+                    <div>
+                        提出課題名：<span v-for="file in uploadFiles" :key="'uploadFiles'+file.name">{{file.name}}, </span>
+                    </div>
+                    <jet-button @click.native.prevent="selectFileDialog">
+                        参照
                     </jet-button>
                 </div>
+            </div>
+            <div class="flex items-center justify-end px-4 py-3 text-right sm:px-6">
+                <jet-action-message :on="sending" class="mr-3">
+                    Uploading…
+                </jet-action-message>
+
+                <jet-button :class="{ 'opacity-25': sending || !homeworkPreview }" :disabled="sending || !homeworkPreview">
+                    Upload
+                </jet-button>
             </div>
         </form>
     </div>
@@ -40,7 +48,6 @@
     import JetLabel from './../../Jetstream/Label'
     import JetActionMessage from './../../Jetstream/ActionMessage'
     import JetSecondaryButton from './../../Jetstream/SecondaryButton'
-    import RakBaseForm from './../../rakuju/BaseComponent/BaseForm'
 
     export default {
         components: {
@@ -51,7 +58,6 @@
             JetInputError,
             JetLabel,
             JetSecondaryButton,
-            RakBaseForm,
         },
 
         props: ['classwork_task_id'],
@@ -61,7 +67,7 @@
                 homeworkPreview: null,
                 sending: false,
                 isFileEnter: false,
-                dragFiles: [],
+                uploadFiles: [],
             }
         },
 
@@ -69,29 +75,20 @@
             // アップロードボタン
             uploadHomework() {
                 var data = new FormData()
+                var data_count = 0
 
-                if (this.$refs.homework) {
+                if (this.uploadFiles.length > 0) {
                     this.sending = true
-                    for( var i = 0; i < this.$refs.homework.files.length; i++ ){
-                        let file = this.$refs.homework.files[i]
-                        console.log(file)
-                        data.append('files[' + i + ']', file)
-                    }
-
-                }
-
-                if (this.dragFiles.length > 0) {
-                    this.sending = true
-                    this.dragFiles.forEach(file => {
-                        console.log(file)
-                        data.append('files[' + i + ']', file)
+                    this.uploadFiles.forEach(file => {
+                        data.append('files[' + data_count + ']', file)
+                        data_count++
                     });
-                }
 
-                this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
-                .then(() => {
-                    this.sending = false
-                })
+                    this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
+                    .then(() => {
+                        this.sending = false
+                    })
+                }
             },
 
             uploadHomeworkPreview() {
@@ -99,10 +96,15 @@
 
                 reader.onload = (e) => {
                     this.homeworkPreview = e.target.result;
-                    
                 };
 
-                reader.readAsDataURL(this.$refs.homework.files[0]);
+                if (this.$refs.homework) {
+                    for( var i = 0; i < this.$refs.homework.files.length; i++ ){
+                        let file = this.$refs.homework.files[i]
+                        this.uploadFiles.push(file)
+                    }
+                    this.homeworkPreview = this.uploadFiles[0].name;
+                }
             },
 
             dragEnter() {
@@ -114,9 +116,16 @@
             },
             
             dropFile() {
-                this.dragFiles = [...event.dataTransfer.files];
-                this.homeworkPreview = this.dragFiles;
+                let dragFiles = [...event.dataTransfer.files];
+                dragFiles.forEach(file => {
+                    this.uploadFiles.push(file);
+                });
+                this.homeworkPreview = this.uploadFiles[0].name;
                 this.isFileEnter = false;
+            },
+
+            selectFileDialog(){
+                this.$refs.homework.click();
             },
         },
     }
