@@ -8,13 +8,18 @@
 
                             <div class="text-2xl">
                                 ユーザ管理
+                                <!-- {{users}} -->
+                            </div>
+
+                            <div>
+                                <show-user-list :users='users'/>
                             </div>
                             
                         </div>
 
                         <div>
                             <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                                {{$page.school}}<br>
+                                {{$page.user.school}}<br>
                                 ---<br>
                                 {{$page.user}}
                             </div>
@@ -30,14 +35,22 @@
 <script>
     import AppLayout from './../../Layouts/AppLayout'
     import JetButton from './../../Jetstream/Button'
+    import ShowUserList from '../../rakuju/ManageUser/ShowUserList'
 
     export default {
         components: {
             AppLayout,
             JetButton,
+            ShowUserList,
         },
+
+        props:{
+            users: Array,
+        },
+
         data(){
             return{
+                // users: this.users,
                 
             }
         },

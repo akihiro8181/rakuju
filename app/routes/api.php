@@ -7,6 +7,8 @@ use App\Http\Controllers\API\UpdateClassworkTask;
 use App\Http\Controllers\API\DeleteClassworkTask;
 use App\Http\Controllers\API\UpdateSchoolInformation;
 use App\Http\Controllers\API\UploadHomework;
+use App\Http\Controllers\API\AddUser;
+use App\Http\Controllers\API\UpdateUser;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +31,7 @@ Route::middleware('auth:sanctum')->delete('/classwork-task/{classwork_task}', De
 
 Route::middleware('auth:sanctum')->put('/schoolinformation/{school}', UpdateSchoolInformation::class)->where('school', '[0-9]+');
 Route::middleware('auth:sanctum')->post('/homework/{classwork_task}', UploadHomework::class)->where('classwork_task', '[0-9]+');
+
+// manageUser関連
+Route::middleware('auth:sanctum')->post('/add-user/', AddUser::class);
+Route::middleware('auth:sanctum')->put('/add-user/{user}', UpdateUser::class)->where('user', '[0-9]+');
