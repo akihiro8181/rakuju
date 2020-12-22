@@ -32,7 +32,7 @@
                     Uploading…
                 </jet-action-message>
 
-                <jet-button :class="{ 'opacity-25': sending || !homeworkPreview }" :disabled="sending || !homeworkPreview">
+                <jet-button :class="{ 'opacity-25': sending || !isSetUploadFiles }" :disabled="sending || !isSetUploadFiles">
                     Upload
                 </jet-button>
             </div>
@@ -64,7 +64,6 @@
 
         data() {
             return {
-                homeworkPreview: null,
                 sending: false,
                 isFileEnter: false,
                 uploadFiles: [],
@@ -92,18 +91,11 @@
             },
 
             uploadHomeworkPreview() {
-                const reader = new FileReader();
-
-                reader.onload = (e) => {
-                    this.homeworkPreview = e.target.result;
-                };
-
                 if (this.$refs.homework) {
                     for( var i = 0; i < this.$refs.homework.files.length; i++ ){
                         let file = this.$refs.homework.files[i]
                         this.uploadFiles.push(file)
                     }
-                    this.homeworkPreview = this.uploadFiles[0].name;
                 }
             },
 
@@ -120,7 +112,6 @@
                 dragFiles.forEach(file => {
                     this.uploadFiles.push(file);
                 });
-                this.homeworkPreview = this.uploadFiles[0].name;
                 this.isFileEnter = false;
             },
 
@@ -128,5 +119,11 @@
                 this.$refs.homework.click();
             },
         },
+
+        computed: {
+            isSetUploadFiles() {
+                return this.uploadFiles[0] != null;
+            },
+        }
     }
 </script>
