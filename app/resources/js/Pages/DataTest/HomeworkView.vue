@@ -14,13 +14,13 @@
                                 提出状況：<span v-for="file_name in $page.files" :key="file_name+'0'">{{file_name}}, </span>
                             </div>
                             <div class="p-2 px-5 bg-gray-200 border border-black">
-                                最終提出日：{{"YYYY/MM/DD HH:mm"}}
+                                最終提出日：{{ $page.last_upload_date }}
                             </div>
                             <div class="mt-6 p-2 px-5 bg-gray-200 border border-black">
                                 該当課題：<span v-for="file_name in parseFileNames($page.file_name[0])" :key="file_name+'1'">{{file_name}}, </span>
                             </div>
                             <div class="p-2 px-5 bg-gray-200 border border-black">
-                                課題提出期限日：{{"YYYY/MM/DD HH:mm"}}
+                                課題提出期限日：{{$page.deadline != null ? $page.deadline : "設定なし"}}
                             </div>
                             <rak-upload-homework-form :classwork_task_id="$page.classwork_task.id"/>
                         </div>
