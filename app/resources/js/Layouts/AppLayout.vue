@@ -289,6 +289,10 @@
 </script>
 
 <style>
+main{
+    width: 100%;
+}
+
 a{
     cursor: pointer;
 }
