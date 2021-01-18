@@ -68,7 +68,7 @@ class ShowHomework extends Controller
             'classwork_task' => ClassworkTask::find($classwork_task->id), 
             'files' => $file_names, 
             'file_name' => array_column($classwork_task->contents, 'file_name'),
-            'last_upload_date' => $last_upload_date->format('Y-m-d H:i'),
+            'last_upload_date' => $last_upload_date != null ? $last_upload_date->format('Y-m-d H:i') : null,
             'deadline' => $deadline,
         ]);
     }
