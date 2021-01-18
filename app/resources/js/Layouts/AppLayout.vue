@@ -293,6 +293,10 @@ main{
     width: 100%;
 }
 
+.min-h-screen{
+    background-color: theme('colors.warm-white');
+}
+
 a{
     cursor: pointer;
 }
