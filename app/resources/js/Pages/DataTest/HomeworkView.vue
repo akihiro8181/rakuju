@@ -11,9 +11,15 @@
                                 評価：{{ evaluation_str }}
                             </div>
                             <div class="p-2 px-5 bg-gray-200 border border-black">
-                                <div v-if="$page.files.length > 0">
-                                    提出状況：<span v-for="file_name in $page.files" :key="file_name+'0'">{{file_name}}, </span>
-                                </div>
+                                <form v-if="$page.files.length > 0" class="flex flex-wrap items-center" enctype="multipart/form-data">
+                                    提出状況：
+                                    <div v-for="file_name in $page.files" :key="file_name+'0'">
+                                        <div class="ml-1">
+                                            <a class="fas fa-times-circle delete_ic" @click.prevent="deleteFile(file_name)"></a>
+                                            <a :href="'/api/storage/' + $page.classwork_task.id + '/' + file_name + '/'" class="cursor-pointer underline text-blue-600 visited:text-purple-600 ml-4">{{file_name}}</a>, 
+                                        </div>
+                                    </div>
+                                </form>
                                 <div v-else>
                                     提出状況：提出ファイルなし
                                 </div>
@@ -22,7 +28,14 @@
                                 最終提出日：{{ $page.last_upload_date != null ? $page.last_upload_date : "提出ファイルなし" }}
                             </div>
                             <div class="mt-6 p-2 px-5 bg-gray-200 border border-black">
-                                該当課題：<span v-for="file_name in parseFileNames($page.file_name[0])" :key="file_name+'1'">{{file_name}}, </span>
+                                <form class="flex flex-wrap items-center" enctype="multipart/form-data">
+                                    該当課題：
+                                    <div v-for="file_name in parseFileNames($page.file_name[0])" :key="file_name+'1'">
+                                        <div class="ml-1">
+                                            {{file_name}},
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                             <div class="p-2 px-5 bg-gray-200 border border-black">
                                 <div v-if="$page.deadline">
@@ -41,6 +54,15 @@
     </app-layout>
 </template>
 
+<style>
+    .delete_ic{
+        color: var(--blue-shadow);
+        height: 24px;
+        padding: 4px 0;
+        position: absolute;
+    }
+</style>
+
 <script>
     import AppLayout from './../../Layouts/AppLayout'
     import RakUploadHomeworkForm from './../../rakuju/Homework/UploadHomeworkForm'
@@ -51,11 +73,32 @@
             RakUploadHomeworkForm,
         },
 
+        data() {
+            return {
+                downloadForm: this.$inertia.form({
+                    '_method': 'POST',
+                }, {
+                    bag: 'downloadFile',
+                }),
+
+                deleteForm: this.$inertia.form({
+                    '_method': 'DELETE',
+                }, {
+                    bag: 'deleteFile',
+                }),
+            }
+        },
+
         methods: {
             // ファイル名を配列に直す
             parseFileNames(file_name) {
                 return file_name.split('|');
             },
+
+            deleteFile(delete_file_name) {
+                // 末尾が「~.php」だとページ遷移と誤認識して動かなくなるので「/」を追加する
+                this.deleteForm.delete('/api/storage/' + this.$page.classwork_task.id + '/' + delete_file_name + '/');
+            }
         },
 
         filters:{
