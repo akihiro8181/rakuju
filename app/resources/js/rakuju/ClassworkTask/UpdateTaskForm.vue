@@ -16,7 +16,7 @@
             <!-- 変更追加 -->
             <div>
                 <ul class="content_list">
-                    <draggable v-model="contents" @start="drag=true" @end="drag=false">
+                    <draggable v-model="contents" @start="drag=true" @end="drag=false" class="cursor-move">
                         <div v-for="(content_item, index) in contents" :key="content_item.sort_num">
                             <a class="fas fa-times-circle delete_ic" @click.prevent="deleteContentsItem(index)"></a>
                             <!-- typeに合わせて表示する内容を変更 -->
