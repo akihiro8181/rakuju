@@ -85,6 +85,7 @@
 
                     this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
                     .then(() => {
+                        this.uploadFiles = []
                         this.sending = false
                     })
                 }
