@@ -8,7 +8,7 @@
                             @dragover.prevent>
                     <!-- <div class="px-4 py-5 bg-white pointer-events-none" :class="[{'border-blue-300 border-4': isFileEnter}]"> -->
                     <div class="px-4 py-10 bg-white box-border text-gray-400 text-center" :class="[{'border-blue-300 border-4': isFileEnter}]">
-                        ここにファイルをドラッグアンドドロップしてください
+                        提出するファイルをここにドラッグアンドドロップしてください
                     </div>
                 </div>
 
@@ -20,7 +20,7 @@
                                 hidden
                                 multiple>
                     <div>
-                        提出課題名：<span v-for="file in uploadFiles" :key="'uploadFiles'+file.name">{{file.name}}, </span>
+                        提出課題名：<span v-for="file in uploadFiles" :key="'uploadFiles_'+file.name">{{file.name}}, </span>
                     </div>
                     <jet-button @click.native.prevent="selectFileDialog">
                         参照
@@ -85,6 +85,7 @@
 
                     this.$inertia.post('/api/homework/' + this.classwork_task_id, data)
                     .then(() => {
+                        this.uploadFiles = []
                         this.sending = false
                     })
                 }
