@@ -21,4 +21,12 @@ class ClassworkTask extends Model
     protected $casts = [
         'contents' => 'json',
     ];
+
+    /**
+     * 授業を取得
+     */
+    public function in_charge()
+    {
+        return $this->belongsTo('App\Models\InCharge');
+    }
 }

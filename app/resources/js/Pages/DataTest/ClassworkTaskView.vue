@@ -21,12 +21,14 @@
                     </div>
                     <!-- 新規作成フォーム -->
                     <div v-if="show_create_form" class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                        <create-task-form :in_charge_id="$page.in_charge.id" />
+                        <create-task-form :in_charge_id="$page.in_charge.id" :max_sort_num="maxSortNum" />
                     </div>
                     <!-- コンテンツが１つも追加されていない場合 -->
                     <div v-if="!$page.in_charge.classwork_tasks.length">
-                        <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                            $page.in_charge.classwork_tasksにデータが存在しません
+                        <div class="work_item">    
+                            <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
+                                $page.in_charge.classwork_tasksにデータが存在しません
+                            </div>
                         </div>
                     </div>
                     <!-- コンテンツが１つ以上ある場合 -->
@@ -35,9 +37,7 @@
                             <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
                                 <!-- 編集権限のあるユーザーの場合はボタンを表示 -->
                                 <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'" class="flex space-x-4">
-                                    <jet-button @click.native="showUpdateForm(classwork_task.id)">
-                                        ⚙
-                                    </jet-button>
+                                    <jet-button @click.native="showUpdateForm(classwork_task.id)" class="fas fa-cog" />
                                     <jet-danger-button @click.native="confirmClassworkTaskDeletion(classwork_task.id)">
                                         削除
                                     </jet-danger-button>
@@ -50,27 +50,36 @@
                                 <!-- コンテンツ情報の表示 -->
                                 <div v-else>
                                     <h3 class="bg-white font-semibold text-xl text-gray-800 leading-tight">
-                                        content.name:{{classwork_task.name}}
+                                        {{classwork_task.name}}
                                     </h3>
-                                    <div class="mt-6 text-gray-500">
-                                        <div v-for="content in classwork_task.contents" :key="content.sort_num">
+                                    <ul class="content_list">
+                                        <div v-for="content_item in classwork_task.contents" :key="content_item.sort_num">
                                             <!-- typeに合わせて表示する内容を変更 -->
-                                            <div v-if="content.type == 'text'">
-                                                {{content.text}}
+                                            <div v-if="content_item.type == 'title'">
+                                                <li class="content_item_title type_title">
+                                                    <p>{{content_item.text}}</p>
+                                                </li>
                                             </div>
-                                            <div v-else-if="content.type == 'link'">
-                                                <a :href="content.url" class="underline text-blue-600 visited:text-purple-600">
-                                                    {{content.text}}
+                                            <div v-else-if="content_item.type == 'text'">
+                                                <li class="content_item_child type_text">
+                                                    <p>{{content_item.text}}</p>
+                                                </li>
+                                            </div>
+                                            <div v-else-if="content_item.type == 'link'">
+                                                <a :href="content_item.url" class="content_item_child type_link underline text-blue-600 visited:text-purple-600">
+                                                    {{content_item.text}}
                                                 </a>
                                             </div>
-                                            <div v-else-if="content.type == 'homework'">
+                                            <div v-else-if="content_item.type == 'homework'">
                                                 <!-- 登録されているファイル名の表示 -->
-                                                <div>ファイル名：{{content.file_name | replaceComma}}</div>
+                                                <li class="content_item_child type_link">
+                                                    <p>ファイル名：{{content_item.file_name | replaceComma}}</p>
+                                                    <inertia-link :href="'/homework/' + classwork_task.id" class=" underline text-blue-600 visited:text-purple-600">提出ページへ</inertia-link>
+                                                </li>
                                                 <!-- 課題提出ページへのリンク -->
-                                                <inertia-link :href="'/homework/' + classwork_task.id" class="underline text-blue-600 visited:text-purple-600">提出ページへ</inertia-link>
                                             </div>
                                         </div>
-                                    </div>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +91,7 @@
         <!-- Delete Account Confirmation Modal -->
         <jet-dialog-modal :show="confirmingClassworkTaskDeletion" @close="confirmingClassworkTaskDeletion = false">
             <template #title>
-                Delete Account
+                contents削除
             </template>
 
             <template #content>
@@ -99,8 +108,65 @@
                 </jet-danger-button>
             </template>
         </jet-dialog-modal>
+
+        <!-- 追加 -->
+        <!-- <div id="dialog" class="dialog">
+            <div class="dialogBackground"></div>
+            <div class="dialogContent">
+                    <div class="dialogTitle">
+                        contents削除
+                    </div>
+                    <hr class="dialog_hr">
+                    <div>
+                        <fieldset>
+                            <div class="dialogMsg"></div>
+                                <button class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150 dialog_btn" onclick="dialogHide('dialog');">いいえ</button>
+                                <button class="dialog_yes inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150 dialog_btn" onclick="Delete('dialog')">はい</button>
+                        </fieldset>
+                    </div>
+            </div>
+        </div> -->
     </app-layout>
 </template>
+
+<style>
+    .content_list{
+        margin-left: -3px;
+        z-index: 0;
+    }
+
+    .content_item_child{
+        margin-left: 15px;
+    }
+
+    .type_title>p{
+        border-bottom: solid 2px;
+        border-image: linear-gradient(to right, theme('colors.sunrise-glow') 0%, rgb(235, 97, 56,0) 100%);
+        border-image-slice: 1;
+        /* margin-left: -25px; */
+        padding-left: 25px;
+    }
+
+    .type_title li{
+        border-bottom: solid 2px;
+        border-image: linear-gradient(to right, theme('colors.ridge-gray') 0%, rgb(235, 97, 56,0) 100%);
+        border-image-slice: 1;
+        margin-left: 0px;
+        padding-left: 40px;
+    }
+
+    .type_text>p{
+        padding-left: 25px;
+    }
+
+    .type_link>p{
+        padding-left: 25px;
+    }
+
+    .type_link>a{
+        padding-left: 25px;
+    }
+</style>
 
 <script>
     import AppLayout from './../../Layouts/AppLayout'
@@ -174,6 +240,20 @@
             // ファイル名の分割記号をカンマに置き換える
             replaceComma(val) {
                 return val.replace('|', ', ');   
+            }
+        },
+
+        computed:{
+            // 現在のコンテンツの中で最大のsort_numを取得
+            maxSortNum() {
+                let max_sort_num = -1;
+                // console.log(this.$inertia.page.props.in_charge.classwork_tasks);
+                this.$inertia.page.props.in_charge.classwork_tasks.forEach(task => {
+                    if (task.sort_num > max_sort_num) {
+                        max_sort_num = task.sort_num;
+                    }
+                });
+                return max_sort_num;
             }
         },
     }
