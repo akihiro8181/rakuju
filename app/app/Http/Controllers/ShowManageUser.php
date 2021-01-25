@@ -24,15 +24,10 @@ class ShowManageUser extends Controller
         $users = User::where('school_id','=',$school_id)->get();
         $users = $users->makeVisible(['login_number']);
 
+
         // $login_number = $request->user()->login_number;
 
-        // dd($users);
-
-        // $school_id = $user->school->id;
-        // dd($user);
-        // dd($school_id);
-        // return Inertia::render('DataTest/ManageUser', ['users' => User::all() ] );
-        return Inertia::render('DataTest/ManageUser', [
+        return Inertia::render('DataTest/ManageUser',[
             'users'=> $users,
         ]);
 

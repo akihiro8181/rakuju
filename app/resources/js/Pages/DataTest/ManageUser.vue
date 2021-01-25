@@ -12,7 +12,7 @@
                             </div>
 
                             <div>
-                                <show-user-list :users='users'/>
+                                <show-user-list :users="users"/>
                             </div>
                             
                         </div>

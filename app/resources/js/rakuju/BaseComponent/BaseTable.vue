@@ -13,8 +13,11 @@
                 <table class="text-left w-full border-collapse">
                     <slot name="table"></slot>
                 </table>
+                
             </div>
+            
         </div>
+        <slot name="paginate"></slot>
 
         <slot name="add_modal"></slot>
         <slot name="update_modal"></slot>

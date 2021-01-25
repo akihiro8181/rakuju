@@ -26,6 +26,7 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
-        "moment": "^2.29.1"
+        "moment": "^2.29.1",
+        "vuejs-paginate": "^2.1.0"
     }
 }
