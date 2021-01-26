@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Team;
+use App\Models\ClassworkTask;
+use App\Models\InCharge;
 use App\Policies\TeamPolicy;
+use App\Policies\ClassworkTaskPolicy;
+use App\Policies\InChargePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -17,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Team::class => TeamPolicy::class,
         ClassworkTask::class => ClassworkTaskPolicy::class,
+        InCharge::class => InChargePolicy::class,
     ];
 
     /**

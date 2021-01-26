@@ -23,7 +23,7 @@ class CreateNewClassworkTask
     public function create(User $user, InCharge $in_charge, array $input)
     {
         // ユーザー権限の認証
-        // Gate::forUser($user)->authorize('create', $in_charge);
+        Gate::forUser($user)->authorize('create', $in_charge);
 
         // Validator::make($input, [
         //     'in_charge_id' => ['required', 'numeric'],

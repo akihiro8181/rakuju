@@ -23,7 +23,7 @@ class UpdateClassworkTask
     public function update(User $user, ClassworkTask $classwork_task, array $input)
     {
         // ユーザー権限の認証
-        // Gate::forUser($user)->authorize('create', $in_charge);
+        Gate::forUser($user)->authorize('update', $classwork_task);
 
         // Validator::make($input, [
         //     'in_charge_id' => ['required', 'numeric'],
