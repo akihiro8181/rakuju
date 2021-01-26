@@ -96,11 +96,6 @@
                     <div>役職：{{$page.user.roll_flag}}</div>
 
                     <!-- Navigation Links -->
-                    <div>
-                        <jet-nav-link :href="route('dashboard')" :active="$page.currentRouteName == 'dashboard'">
-                            Dashboard
-                        </jet-nav-link>
-                    </div>
                     <div v-if="$page.user.roll_flag == 'st'">
                         <attendance-list />
                     </div>

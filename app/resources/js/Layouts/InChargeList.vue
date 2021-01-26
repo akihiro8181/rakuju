@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p>InChargeList</p>
+        <p>授業一覧</p>
         <ul id="classwork-tasks">
             <li v-for="classwork in $inertia.page.props.classworks" :key="classwork.id">
                 {{classwork.name}}

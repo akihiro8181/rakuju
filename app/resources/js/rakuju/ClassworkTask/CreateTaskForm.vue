@@ -50,7 +50,7 @@
 
             <!-- 追加 -->
             <div class="content_inputs">
-                <input class="form-input rounded-md shadow-sm mt-1 mb-2.5 block w-full" id="content_inputs" type="text" autocomplete="" v-model="content_inputs">
+                <input v-if="!isActiveHomework" class="form-input rounded-md shadow-sm mt-1 mb-2.5 block w-full" id="content_inputs" type="text" autocomplete="" v-model="content_inputs">
                 <input v-if="isActiveURL" class="form-input rounded-md shadow-sm mt-1 mb-2.5 block w-full" type="text" autocomplete="" placeholder="http://" v-model="content_url_inputs">
                 <input v-if="isActiveHomework" class="form-input rounded-md shadow-sm mt-1 mb-2.5 block w-full" type="text" autocomplete="" placeholder="ファイル名：例）example1.txt|example2.docx" v-model="content_filename_inputs">
                 <input v-if="isActiveHomework" class="form-input rounded-md shadow-sm mt-1 mb-2.5 block w-full" type="datetime-local" autocomplete="" placeholder="締切日" v-model="content_deadline_inputs">

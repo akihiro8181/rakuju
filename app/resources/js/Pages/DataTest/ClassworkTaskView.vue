@@ -27,7 +27,7 @@
                     <div v-if="!$page.in_charge.classwork_tasks.length">
                         <div class="work_item">    
                             <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                                $page.in_charge.classwork_tasksにデータが存在しません
+                                コンテンツがまだありません
                             </div>
                         </div>
                     </div>

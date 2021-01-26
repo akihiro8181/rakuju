@@ -21,7 +21,7 @@ class DeleteClassworkTask
     public function delete(User $user, ClassworkTask $classwork_task)
     {
         // ユーザー権限の認証
-        // Gate::forUser($user)->authorize('create', $in_charge);
+        Gate::forUser($user)->authorize('delete', $classwork_task);
 
         $classwork_task->delete();
     }
