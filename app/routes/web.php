@@ -40,14 +40,18 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/admin', function () {
 
 //学生のvideoページのルート
 Route::middleware(['auth:sanctum', 'verified'])->get('/studentVideo', function () {
-    return Inertia\Inertia::render('DataTest/StudentVideo');
+    if(Auth::user()->roll_flag=="st"){
+        return Inertia\Inertia::render('DataTest/StudentVideo');
+    }else{
+        return redirect('dashboard');
+    }
 })->name('studentVideo');
 
 //先生のvideoページのルート
 Route::middleware(['auth:sanctum', 'verified'])->get('/teacherVideo', function () {
-    return Inertia\Inertia::render('DataTest/TeacherVideo');
+    if(Auth::user()->roll_flag=="te"){
+        return Inertia\Inertia::render('DataTest/TeacherVideo');
+    }else{
+        return redirect('dashboard');
+    }
 })->name('teacherVideo');
-//check video
-Route::middleware(['auth:sanctum', 'verified'])->get('/videoCheck/{id}', function () {
-    return Inertia\Inertia::render('DataTest/VideoCheck');
-})->name('videoCheck');

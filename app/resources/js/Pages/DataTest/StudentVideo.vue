@@ -5,8 +5,8 @@
         </div>
         <div class="left">
             <div class="teacher-video">
-                <div v-if="showTBG" class="backG"></div>
-                <video :srcObject.prop="teacherVideoStream" autoplay></video>
+                <div v-if="showTBG" class="backTBG"></div>
+                <video :srcObject.prop="teacherVideoStream" ref="tVideo" autoplay></video>
             </div>
             <div class="my-video">
                 <div v-if="showBackG" class="backG"></div>
@@ -28,7 +28,27 @@
                 <div class="input-area">
                     <div class="input-area-inner">
                         <div class="my-message" ref="localText" placeholder="message" contenteditable="true" aria-multiline="true"></div>
+                        <div class="preview-wrapper">
+                            <div :class="{preview:selectedFiles.length>0}" ref="preview" ondragstart="return false;">
+                                <div v-for="(value,key) in selectedFiles" :key="key" class="fileView">
+                                    <div v-if="value.type=='1'" class="imgView">
+                                        <img :src="value.fileUrl" @click="showBigImg(value.fileUrl)">
+                                    </div>
+                                    <div v-if="value.type=='0'" class="noImgView">
+                                        <img src="/images/file.svg">
+                                        <div class="fileName">{{value.fileName}}</div>
+                                    </div>
+                                    <div class="deleteFile" @click="deleteFile(key)"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="options">
+                            <div class="inputImg opentionIcon" @click="showFileSelectWindow(1)">
+                                <input style='display:none' type="file" ref="inputImg" @change="handleFileSelect(1)" accept=".gif,.jpg,.jpeg,.png,.bmp,.JPG" multiple>
+                            </div>
+                            <div class="inputFile opentionIcon" @click="showFileSelectWindow(0)">
+                                <input style='display:none' type="file" ref="inputFile" @change="handleFileSelect(0)" multiple>
+                            </div>
                             <button class="js-send-trigger" @click="onClickSend">Send</button>
                         </div>
                     </div>
@@ -50,33 +70,31 @@
             </div>
         </div>
         <!-- 承認待ちダイアログ -->
-        <transition name="show">
-            <div class="dialog dialogBackG" v-if="waitDialog">
-                <div class="modal-content sys">
-                    <div class="modal-header">
-                        <h2>ラクジュ</h2>
-                    </div>
-                    <div class="modal-body" ref="dialogContent">
-                        <div class="content-text">
-                            <div class="loadingio-spinner-spinner-nglqv2ndcch">
-                                <div class="ldio-5ekurv8jzaa">
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                </div>
+        <div class="dialog dialogBackG" v-if="waitDialog">
+            <div class="modal-content sys">
+                <div class="modal-header">
+                    <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body" ref="dialogContent">
+                    <div class="content-text">
+                        <div class="loadingio-spinner-spinner-nglqv2ndcch">
+                            <div class="ldio-5ekurv8jzaa">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
                             </div>
-                            先生からの承認を待っています. . .
                         </div>
-                        <div class="okButton" @click="joinCancel">キャンセル</div>
+                        先生からの承認を待っています. . .
                     </div>
+                    <div class="okButton" @click="joinCancel">キャンセル</div>
                 </div>
             </div>
-        </transition>
+        </div>
         <!-- 拒否ダイアログ -->
         <div class="dialog dialogBackG" v-if="joinDialog">
             <div class="modal-content sys">
@@ -88,6 +106,27 @@
                         加入を拒否されました
                     </div>
                     <div class="okButton" @click="joinCancel">OK</div>
+                </div>
+            </div>
+        </div>
+        <!-- 退出されたダイアログ -->
+        <div class="dialog" v-if="outDialog">
+            <div class="modal-content sys">
+                <div class="modal-header">
+                    <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="content-text">
+                        強制退出されました。
+                    </div>
+                    <div class="okButton" @click="dialogOk">OK</div>
+                </div>
+            </div>
+        </div>
+        <div v-if="onShowBigImg" ref="leaveDialog" class="dialog">
+            <div class="img-content">
+                <div class="img-fa">
+                    <img ref="bigImg" :src="showImgUrl">
                 </div>
             </div>
         </div>
@@ -109,35 +148,42 @@
                 room:undefined,               //Room のオブジェクト
                 diaglogFlag:false,           //退出dialog FLag 
                 joinDialog:false,    
-                showBackG:false,
-                showTBG:false,
+                showBackG:true,
+                showTBG:true,
                 videoEnable: false,
                 audioEnable: false,
-                noMedia:false,
                 handUp:false,
+                outDialog:false,
+                noVideo:false,
+                noAudio:false,
+                selectedFiles:[],
+                onShowBigImg:false,
+                showImgUrl:'',
             }
         },
         methods: {
             init(){
-                console.log("peer.open");
-
                 this.waitRoom = this.peer.joinRoom(`waitRoom${this.CLASS_CODE}`,{
                     mode:'sfu',
                 });
                 
                 if(this.waitRoom!=undefined){
                     this.waitRoom.once('open', () => {
-                        this.waitRoom.send(`wait${this.user.id}`)
+                        this.waitRoom.send({"id":this.user.id,"status":"wait","roll_flag":this.user.roll_flag})
                     });
                     this.waitRoom.on('peerJoin', peerId => {
-                        this.waitRoom.send(`wait${this.user.id}`)
+                        if(peerId.substring(1,3)=="te"){
+                            this.waitRoom.send({"id":this.user.id,"status":"wait","roll_flag":this.user.roll_flag})
+                        }
                     });
                     this.waitRoom.on('data', ({ data, src }) => {
+                        if(data.roll_flag==="st"){
+                            return
+                        }
                         if(data.id==this.user.id){
                             if(data.res=="ok"){
                                 this.$refs.dialogContent.innerHTML = "<div class='content-text'>承認されました</div>";
-                                this.waitDialog=false
-                                this.waitRoom.close();
+                                this.delay(1200);
                             }else{
                                 this.joinDialog = true
                             }
@@ -147,85 +193,144 @@
                         if(this.waitDialog){
                             window.close()
                         }else{
-                            this.joinClassRoom();
+                            navigator.mediaDevices.getUserMedia({
+                                video:{ width: 1024, height: 760 },
+                                audio: true,
+                            }).then(stream => {
+                                this.localStream = stream;
+                                this.localVideoStream = stream;
+                                this.showBackG = false;
+                                this.joinClassRoom();
+                            }).catch(e=>{
+                                console.log(`${e.type}:${e}`);
+                                navigator.mediaDevices.getUserMedia({
+                                    video:{ width: 1024, height: 760 }
+                                }).then(stream => {
+                                    this.localStream = stream;
+                                    this.localVideoStream = stream;
+                                    this.showBackG = false;
+                                    this.noAudio = true;
+                                    this.$refs.js_messages.append(this.addElement('div',"マイクが取得できませんでした。",'systemMsg',''));
+                                    this.joinClassRoom();
+                                }).catch(e=>{
+                                    navigator.mediaDevices.getUserMedia({
+                                        audio:true,
+                                    }).then(stream => {
+                                        var canvas = document.createElement('canvas');
+                                        var canvasStream = canvas.captureStream();
+                                        canvasStream.addTrack(stream.getAudioTracks()[0]);
+                                        this.localStream = canvasStream;
+                                        this.localVideoStream = canvasStream;
+                                        this.noVideo = true;
+                                        console.log(this.localStream.getAudioTracks()[0]);
+                                        this.$refs.js_messages.append(this.addElement('div',"カメラが取得できませんでした。",'systemMsg',''));
+                                        this.joinClassRoom();
+                                    }).catch(e=>{
+                                        this.noVideo = true;
+                                        this.noAudio = true;
+                                        this.getMock();
+                                        this.$refs.js_messages.append(this.addElement('div',"カメラとマイクが取得できませんでした。",'systemMsg',''));
+                                        this.joinClassRoom();
+                                    });
+                                });
+                            });
                         }
                     });
                 }
             },
             joinClassRoom(){
-                navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true
-                }).then(stream => {
-                    this.localStream = stream;
-                    this.localVideoStream = this.localStream;
-                }).catch(e=>{
-                    console.log(`${e.type}:${e}`);
-                    this.showBackG = true;
-                });
-
                 this.room = this.peer.joinRoom(this.CLASS_CODE,{
                     mode: 'sfu',
                     stream: this.localVideoStream,
                 });
-                console.log(this.room);
+
                 if(this.room!=undefined){
                     // roomt on lisener
                     this.room.once('open', () => {
                         this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
+                        this.room.send({"type":100,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
                     });
 
                     this.room.on('peerJoin', peerId => {
-                        this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが入りました ===`,'systemMsg',''));
+                        this.room.send({"type":100,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
                     });
                 
                     this.room.on('stream', async stream => {
-                        alert("ok");
-                        if(stream.peerId.substring(1,2)=="te"){
+                        stream.getVideoTracks()[0].addEventListener("mute", event => {
+                            this.showTBG = true;
+                            console.log("muete");
+                        }, false);
+                        if(stream.peerId.substring(1,3)=="te"){
                             this.teacherVideoStream = stream;
+                            this.showTBG = false;
                         }
                     });
             
                     this.room.on('data', ({ data, src }) => {
                         if(data.type==100){
-                            if(data.cmd==2){
-                                this.handUp = data.value;
+                            if(data.roll_flag==="st"){
+                                return
                             }
-                            switch(data.cmd) {
-                                case 0:
-                                    this.room.close()
-                                    break;
-                                case 1:
-                                    
-                                    break;
-                                case 2:
-                                    this.handUp = data.value;
-                                    break;
-                            } 
+                            if(data.cmd == 3){
+                                this.showTBG = data.value;
+                            }
+                            if(data.id == this.user.id){
+                                switch(data.cmd) {
+                                    case 0:
+                                        this.outDialog = true;
+                                        this.room.close();
+                                        break;
+                                    case 1:
+                                        this.audioEnable = !data.value;
+                                        this.localVideoStream.getAudioTracks().forEach( track => (track.enabled = data.value));
+                                        break;
+                                    case 2:
+                                        this.handUp = data.value;
+                                        break;
+                                } 
+                            }
                         }
                         if(data.type==200){
                             if(data.roll_flag=='te'){
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'teacherMsg');
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'teacherMsg',200);
                             }else{
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg');
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg',200);
+                            }
+                        }
+                        if(data.type==1 || data.type==0){
+                            if(data.roll_flag=='te'){
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data,'teacherMsg',100);
+                            }else{
+                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data,'studentMsg',100);
                             }
                         }
                     });
             
                     this.room.on('peerLeave', peerId => {
-                        this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが退室しました ===\n`,'systemMsg',''));                    });
-            
-                    this.room.once('close', () => {
-                        window.close()
+                        if(peerId.substring(1,3)=="te"){
+                            this.showTBG = true;
+                            console.log("leave");
+                        }
                     });
+            
+                    // this.room.once('close', () => {
+                    // });
                 }
             },
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
+            async delay(time){
+                await this.sleep(time);
+                this.waitDialog=false;
+                this.waitRoom.close();
+            },
             switchMedia(media){
-                if(this.noMedia){
-                    return
-                }
                 //video
                 if(media===0){
+                    if(this.noVideo){
+                        return
+                    }
                     if(this.localVideoStream.getVideoTracks()[0].enabled){
                         //close the video
                         this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
@@ -240,27 +345,37 @@
                 }
                 //mic
                 if(media===1){
+                    if(this.noAudio){
+                        return
+                    }
                     if(this.localVideoStream.getAudioTracks()[0].enabled){
                         this.audioEnable = true;
                         this.localVideoStream.getAudioTracks().forEach((track) => (track.enabled = false));
+                        this.room.send({"type":100,"id":this.user.id,"cmd":1,"value":false,"roll_flag":this.user.roll_flag});
                     }else{
                         this.audioEnable = false;
                         this.localVideoStream.getAudioTracks().forEach( track => (track.enabled = true));
+                        this.room.send({"type":100,"id":this.user.id,"cmd":1,"value":true,"roll_flag":this.user.roll_flag});
                     }
                 }
             },
             onScreenShare(){
-                if(this.noMedia){
-                    return
-                }
                 if(this.share){
                     this.localVideoStream.getVideoTracks()[0].stop();
+                    if(this.localVideoStream.getAudioTracks()[0]!=undefined){
+                        this.localVideoStream.getAudioTracks()[0].stop();
+                    }
                     this.showLocalVideo();
                 }else{
                     navigator.mediaDevices.getDisplayMedia({ 
-                        video: true,
+                        video: { width: 1024, height: 760 },
+                        audio:true,
                     }).then(stream => {
                         this.share=true;
+                        this.showBackG = false;
+                        if(this.noVideo){
+                            this.room.send({"type":100,"id":this.user.id,"value":true,"cmd":10,"roll_flag":this.user.roll_flag});
+                        }
                         if(!this.localVideoStream.getVideoTracks()[0].enabled){
                             this.localVideoStream=stream;
                             this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
@@ -274,11 +389,16 @@
             },
             showLocalVideo(){
                 this.share=false;
+                if(this.noVideo){
+                    this.showBackG = true;
+                    this.room.send({"type":100,"id":this.user.id,"value":false,"cmd":10,"roll_flag":this.user.roll_flag});
+                }
                 if(!this.localVideoStream.getVideoTracks()[0].enabled){
                     this.localVideoStream = this.localStream;
                     this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
                 }else{
                     this.localVideoStream = this.localStream;
+                    this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = true));
                 }
                 this.room.replaceStream(this.localVideoStream);
             },
@@ -287,23 +407,31 @@
                     return;
                 }
                 this.$refs.localText.focus();
-                if(this.$refs.localText.innerText === ''){
-                    return;
+                if(this.$refs.localText.innerText != ''){
+                    var text = this.$refs.localText.innerText;
+                    this.room.send(this.jsonMsg(this.user.id,text));
+                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'studentMsg',200);
+                    this.$refs.localText.innerText = '';
                 }
-                var text = this.$refs.localText.innerText;
-                this.room.send(this.jsonMsg(this.user.id,text));
-                this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'studentMsg');
-                this.$refs.localText.innerText = '';
+                if(this.selectedFiles.length > 0){
+                    this.selectedFiles.forEach((item,index)=>{
+                        this.room.send(this.selectedFiles[index]);
+                        this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,this.selectedFiles[index],'studentMsg',100);
+                    })
+                    this.selectedFiles=[]
+                }
             },
             showLeaveDialog(){
                 this.diaglogFlag = true;
             },
             dialogOk(){
                 this.room.close();
+                window.close();
             },
             onClickVideo:function(e){
-                if (e.target == this.$refs.leaveDialog || e.target == this.$refs.js_Close_Dialog) {
+                if (e.target == this.$refs.leaveDialog || e.target == this.$refs.js_Close_Dialog || e.target == this.$refs.bigImg) {
                     this.diaglogFlag = false;
+                    this.onShowBigImg = false;
                 }
             },
             onSwitchDialogFlag(){
@@ -311,6 +439,9 @@
             },
             addElement(elementName,content,className,elementId){
                 var msg = document.createElement(elementName);
+                if(content!=""){
+                    msg.innerText=content;
+                }
                 msg.innerText = content;
                 if(className!=''){
                     msg.className = className;
@@ -320,7 +451,7 @@
                 }
                 return msg;
             },
-            createMsg(imgUrl,name,roll_flag,msgText,msgClass){
+            createMsg(imgUrl,name,roll_flag,msgText,msgClass,msgType){
                 var msg =  document.createElement('div');
                 msg.className='msg';
 
@@ -340,7 +471,37 @@
                 msgName.innerText = name;
                 msgName.className = 'msgName';
                 //msg
-                var msgContent = this.addElement('div',msgText,'msgContent','msgContent');
+                var msgContent;
+                if(msgType==200){
+                    msgContent = this.addElement('div',msgText,'msgContent','msgContent');
+                }else{
+                    msgContent = this.addElement('div',"",'msgContent','msgContent');
+                    if(msgText.type==1){
+                        var imgDoc = document.createElement('img');
+                        imgDoc.src = msgText.fileUrl;
+                        imgDoc.addEventListener("click", ()=>{
+                                this.showBigImg(msgText.fileUrl)
+                            }
+                        );
+                        msgContent.appendChild(imgDoc);   
+                    }else{
+                        var msgFileView = document.createElement('div');
+                        msgFileView.className = "msgFileView";
+                        var imgDoc = document.createElement('img');
+                        imgDoc.src = "/images/file.svg";
+                        var fileNameDoc = document.createElement('div');
+                        fileNameDoc.className="fileName";
+                        fileNameDoc.innerHTML=msgText.fileName;
+                        var dowload = document.createElement("a");
+                        dowload.className="downloadFile";
+                        dowload.href = msgText.fileUrl;
+                        dowload.download = msgText.fileName;
+                        msgFileView.appendChild(imgDoc);
+                        msgFileView.appendChild(fileNameDoc);
+                        msgFileView.appendChild(dowload);
+                        msgContent.appendChild(msgFileView);
+                    }
+                }
 
                 //studentMsg
                 var theMsg = document.createElement('div');
@@ -371,7 +532,7 @@
                     this.handUp = false;
                 }else{
                     this.handUp = true;
-                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,"🖐",'studentMsg');
+                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,"🖐",'studentMsg',200);
                     this.room.send(this.jsonMsg(this.user.id,"🖐"));
                 }
                 this.room.send(this.jsonCmd(this.user.id,2));
@@ -380,19 +541,96 @@
                 return {"type":200,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
             },
             jsonCmd(id,cmd){
-                return {"type":100,"id":id,"cmd":cmd,"value":this.handUp};
+                return {"type":100,"id":id,"cmd":cmd,"value":this.handUp,roll_flag:this.user.roll_flag};
+            },
+            getMock(){
+                var canvas = document.createElement('canvas');
+                this.localStream = canvas.captureStream();
+                this.localVideoStream = canvas.captureStream();
+            },
+            showFileSelectWindow(e){
+                if(this.selectedFiles.length>=10){
+                    alert("1度にアップロードできるのは 10 個のファイル までです。");
+                    return
+                }
+                switch(e){
+                    case 0:
+                        this.$refs.inputFile.click();
+                        break;
+                    case 1:
+                        this.$refs.inputImg.click();
+                        break;
+                }
+            },
+            readerLoad(e,file){
+                const fileUrl = e.target.result; // URLはevent.target.resultで呼び出せる
+                var type = 0;
+                if(file.type.split("/")[0]=="image"){
+                    type = 1
+                }
+                this.selectedFiles.push({"type":type,"fileName":file.name,"fileUrl":fileUrl,"id":this.user.id,"roll_flag":this.user.roll_flag});
+            },
+            previewFile(file){
+                // FileReaderオブジェクトを作成
+                const reader = new FileReader();
+
+                // URLとして読み込まれたときに実行する処理
+                reader.onload = e => this.readerLoad(e,file);
+
+                // いざファイルをURLとして読み込む
+                reader.readAsDataURL(file);
+            },
+            handleFileSelect(e){
+                if(e==0){
+                    var files = this.$refs.inputFile.files;
+                    for (let i = 0; i < files.length; i++) {
+                        if(i>=10){
+                            //dialog に変更
+                            alert("1度にアップロードできるのは 10 個のファイル までです。");
+                            break;
+                        }
+                        this.previewFile(files[i]);
+                    }   
+                }
+                if(e==1){
+                    var files = this.$refs.inputImg.files;
+                    for (let i = 0; i < files.length; i++) {
+                        if(i>=10){
+                            //dialog に変更
+                            alert("1度にアップロードできるのは 10 個のファイル までです。");
+                            break;
+                        }
+                        // console.log(files[i].type.split("/")[0]);
+                        //close 那个的旋转角度
+                        if(files[i].type.split("/")[0]!="image"){
+                            alert("アップロードしたファイルは画像ファイルではありません。");
+                            break;
+                        }
+                        this.previewFile(files[i]);
+                    }
+                }
+                this.$refs.inputFile.value="";
+                this.$refs.inputImg.value="";
+            },
+            deleteFile(key){
+                this.selectedFiles.splice(key, 1);
+            },
+            showBigImg(url){
+                this.showImgUrl = url;
+                this.onShowBigImg = true;
             }
         },
-        mounted(){
+        created(){
             window.__SKYWAY_KEY__ = '1f3076ca-36ad-4d4f-87d7-23b05a093ca3';
-            
-            var data = Math.floor(Math.random()*10).toString() + this.user.roll_flag + this.user.id ;
 
-            this.peer = new Peer(data,{
+            var peerID = Math.floor(Math.random()*10).toString() + this.user.roll_flag + this.user.id ;
+
+            this.peer = new Peer(peerID,{
                 key: window.__SKYWAY_KEY__,
-                debug: 3,
+                debug: 1,
             });
-
+        },
+        mounted(){
             this.peer.on('open',this.init);
 
             this.peer.on('error',(error)=>{
@@ -404,12 +642,168 @@
 </script>
 
 <style lang="css">
-.show-leave-active{
-    transition: all 1.5s;
+.img-fa img{
+    cursor: zoom-out;
 }
-/* .show-leave-to{
-    opacity: 0;
-} */
+.img-fa{
+    max-width: 1000px;
+}
+.img-content{
+    position: relative;
+    margin: auto;
+    padding: 0;
+    width: auto;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+}
+.studentMsg .downloadFile{
+    border: 4px solid #f9ead2ff;
+}
+.teacherMsg .downloadFile{
+    border: 4px solid greenyellow;
+}
+.msgFileView:hover .downloadFile{
+    display: block;
+}
+.downloadFile:hover{
+    background-color: #B1B1B1;
+}
+.downloadFile{
+    display: none;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-image: url(/images/download.svg);
+    background-size: 80%;
+    background-color: white;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    right: -15px;
+    bottom: -15px;
+}
+.msgFileView {
+    width: 250px;
+    display: flex;
+    height: 70px;
+    padding: 12px;
+    margin: 12px;
+    border: 1px solid;
+    border-radius: 8px;
+    position: relative;
+}
+.msgFileView img {
+    cursor:auto!important;
+    height: 100%;
+    margin-right: 12px;
+}
+.fileName {
+    line-height: inherit;
+    width: 100%;
+    font-weight: bold;
+    font-family: system-ui;
+    margin: auto 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.noImgView img{
+    height: 100%;
+    margin-right: 12px;
+}
+.noImgView{
+    width: 200px;
+    height: 100%;
+    padding: 12px;
+    display: flex;
+}
+.preview-wrapper{
+    overflow: overlay;
+}
+.preview{
+    padding: 12px 0 12px 12px;
+    display: inline-flex;
+}
+.fileView{
+    height: 60px;
+    margin-right: 12px;
+    border: solid 1px silver;
+    border-radius: 5px;
+    position: relative;
+}
+img{
+    user-select: none;
+}
+.imgView{
+    height: 100%;
+    width: 58px;
+}
+.imgView img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    outline: none;
+    cursor: zoom-in;
+    filter: blur(0.3px);
+}
+.fileView:hover .deleteFile{
+    display: flex;
+}
+.deleteFile:hover{
+    display: flex;
+}
+.deleteFile{
+    display: none;
+    top: -14px;
+    right: -15px;
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    background-color: gray;
+    border-radius: 50%;
+    border: 3px solid white;
+    cursor: pointer;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+}
+.deleteFile:hover{
+    background-color: black;
+}
+.deleteFile::before,
+.deleteFile::after{
+    width: 14px;
+    height: 4px;
+    background-color: white;
+    display: block;
+    border-radius: 10px;
+    position: absolute;
+    content: '';
+}
+.deleteFile::after{
+    transform: rotate(135deg);
+}
+.deleteFile::before{
+    transform: rotate(225deg);
+}
+.opentionIcon{
+    margin: auto 0 auto 10px;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-size: cover;
+}
+.opentionIcon:hover{
+    background-color: #B1B1B1;
+}
+.inputImg{
+    background-image: url(/images/img.svg);
+}
+.inputFile{
+    background-image: url(/images/folder.svg);
+}
 *{
     margin: 0;
     padding: 0;
@@ -421,6 +815,7 @@
     position: fixed;
     width: 100%;
     grid-template-columns: 55.1% 44.9%;
+    /* min-width: max-content;   有问题   上面的bodyer删了得 */
 }
 div{
     display: block;
@@ -466,11 +861,23 @@ h1{
     top: 0;
     left: 0;
     width: 100%;
-    height: 80%;
+    height: 70%;
     background-image: url(/images/user.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 30%;
+    background-size: 20%;
+}
+.backTBG{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(/images/user.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 55%;
+    background-color: black;
 }
 .my-video video{
     height: 70%;
@@ -540,34 +947,42 @@ h1{
     background-color: rgba(105,105,105,0.8);
 }
 .chat-area{
-    position: relative;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 .messages{
-   height: 86%;
+    display: flex;
+    flex: 1;
+    position: relative;
 }
 .messages_list{
-    height: 100%;
     overflow-y: overlay;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: auto;
+    width: 100%;
 }
 ::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    border-radius: 10px;
+    width: 10px;
+    height: 8px;
+    background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
     background: #999999;
     border-radius: 12px;
-    box-shadow: inset 0 15px 0 0 white,
-                inset 0 -15px 0 0 white;
+    box-shadow:inset 0 0 6px rgba(0,0,0,.3);
 }
 ::-webkit-scrollbar-thumb:hover {
     background: #707070; 
 }
+::-webkit-scrollbar-track
+{
+    border-radius:10px;
+}
 .input-area{
-    position: absolute;
-    bottom: 4%;
+    padding-bottom: 25px;
     width: 100%;
 }
 .input-area-inner{
@@ -581,8 +996,8 @@ h1{
     padding: 5px 10px;
     color: #555;
     background-color: #fff;
-    max-height: 120px;
-    overflow: auto;
+    max-height: 200px;
+    overflow: overlay;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     margin: 5px 5px;
@@ -594,6 +1009,7 @@ h1{
     font-size: 18px;
 }
 .options{
+    display: flex;
     height: 40px;
     background-color:#D8D8D8;
     border-top: 1px solid #999;
@@ -601,19 +1017,26 @@ h1{
     border-bottom-right-radius: 5px;
 }
 .js-send-trigger{
+    font-weight: bolder;
     height: 30px;
     width: 60px;
     background: none;
-    border: 1px solid #111;
+    border: 1.5px solid #111;
     border-radius: 8px;
     outline: none;
     cursor: pointer;
     position: absolute;
     right: 10px;
     bottom: 5px;
+    user-select: none;
 }
 .js-send-trigger:hover{
     background-color: gray;
+    border-width: 2px;
+}
+.js-send-trigger:focus {
+    outline: none;
+    border-width: 2px;
 }
 .systemMsg{
     text-align: center;
@@ -674,11 +1097,14 @@ h1{
     border-radius: 8px;
     padding: 5px;
     margin: 0 10px;
-    max-width: 344px;
+    max-width: 485px;
     word-wrap:break-word;
     word-break:break-all;
     overflow: hidden;
     width: fit-content;
+}
+.msgContent img{
+    cursor: zoom-in;
 }
 .studentMsg .msgContent{
     margin: 0 auto 0 0;
@@ -713,7 +1139,7 @@ h1{
     margin: auto;
     padding: 0;
     border: 1px solid #888;
-    width: 410px;
+    width: auto;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
     animation-name: animatetop;
     animation-duration: 0.4s;
@@ -772,6 +1198,7 @@ h2{
     width: 50px;
     height: 50px;
     background-image: url(/images/warning.svg);
+    background-repeat: no-repeat;
 }
 .okButton{
     outline: none;
