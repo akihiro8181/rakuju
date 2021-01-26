@@ -11,9 +11,6 @@
                                 <jet-application-mark class="block h-9 w-auto" />
                             </inertia-link>
                         </div>
-                        <!-- school name -->
-                        <div>{{$page.school.name}}</div>
-                        <div>{{$page.user.roll_flag}}</div>
                         <!-- Settings Dropdown -->
                         <div class="flex-grow">
                             <div class="ml-3">
@@ -94,15 +91,14 @@
                         </div>
                     </div>
 
+                    <!-- school name -->
+                    <div>学校名：{{$page.school.name}}</div>
+                    <div>役職：{{$page.user.roll_flag}}</div>
+
                     <!-- Navigation Links -->
                     <div>
                         <jet-nav-link :href="route('dashboard')" :active="$page.currentRouteName == 'dashboard'">
                             Dashboard
-                        </jet-nav-link>
-                    </div>
-                    <div>
-                        <jet-nav-link :href="route('datatest')" :active="$page.currentRouteName == 'datatest'">
-                            DataTest
                         </jet-nav-link>
                     </div>
                     <div v-if="$page.user.roll_flag == 'st'">
@@ -137,19 +133,6 @@
                                 <path :class="{'hidden': ! showingNavigationDropdown, 'inline-flex': showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                    </div>
-
-                    <!-- Add Button (test) -->
-                    <div>
-                        <jet-nav-link v-if="$page.user.roll_flag == 'st'" :href="route('student')" :active="$page.currentRouteName == 'student'">
-                            move page(student)(test)
-                        </jet-nav-link>
-                        <jet-nav-link v-if="$page.user.roll_flag == 'te'" :href="route('teacher')" :active="$page.currentRouteName == 'teacher'">
-                            move page(teacher)(test)
-                        </jet-nav-link>
-                        <jet-nav-link v-if="$page.user.roll_flag == 'ad'" :href="route('admin')" :active="$page.currentRouteName == 'admin'">
-                            move page(admin)(test)
-                        </jet-nav-link>
                     </div>
 
                     <!-- new video window -->
