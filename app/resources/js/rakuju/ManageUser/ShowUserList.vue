@@ -28,19 +28,53 @@
             <div class="col-span-5">
                 <thead>
                 <tr>
-                    
-                    <th class="py-4 px-6 bg-grey-lightest font-bold text-sm text-grey-dark border-b border-grey-light " v-for="(value,key) in columns" :key="key">
+                    <th class="py-4 px-3 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
+
+                    </th>
+                    <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light hover:bg-blue-200" v-for="(value,key) in columns" :key="key">
                         {{value}}
+                    </th>
+                    <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
+
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                    <tr class="hover:bg-gray-lighter hover:bg-blue-300" v-for="(user,key) in getList" :key="key">
+                    <tr class="hover:bg-blue-300" v-for="(user,key) in getList" :key="key">
+                        <td class=" py-4 border-b border-grey-light ">
+                            <div class="flex px-3 items-center">
+                                {{user.id}}
+                            </div>
+                        </td>
                         <td class="py-4 px-6 border-b border-grey-light " v-for="(value,key) in columns" :key="key">
                             <!-- {{ user[key] }} -->
                             {{ user[key] }}
+                        </td>
+                        <td class="py-4 border-b border-grey-light ">
+                            <jet-dropdown id="update_delete" align="left" width="24">
+                                <template #trigger>
+                                    <div class="px-0.5 items-center">
+                                        <button class="flex  text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                            ・・・
+                                        </button>
+                                    </div>
+                                </template>
+                                <template #content>
+                                    <div class="py-2 px-6 hover:bg-blue-300">
+                                        <button @click="showUpdateUserModal(user)" class="flex  items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                            編集
+                                        </button>
+                                    </div>
+                                    <div class="py-2 px-6 hover:bg-blue-300">
+                                        <button class="flex  items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                            削除
+                                        </button>
+                                    </div>
+                                </template>
+                            </jet-dropdown>
                             
                         </td>
+
                     </tr>
                 </tbody>
             </div>
@@ -63,7 +97,7 @@
                     :prev-link-class="'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-blue-300'"
                     :next-link-class="'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-blue-300'"
                     :break-view-link-class="'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'"
-                    :active-class="'relative inline-flex items-center md:inline-flex bg-gray-300 text-sm font-medium text-gray-700'"
+                    :active-class="'relative inline-flex items-center md:inline-flex border border-gray-300 bg-gray-300 text-sm font-medium text-gray-700'"
                     :hide-prev-next="true">
                 </paginate>
             </div>
@@ -71,6 +105,10 @@
 
         <template #add_modal>
             <add-user-form :show="add_modal_show_flag" @close='showAddUserModal()' />
+        </template>
+
+        <template #update_modal>
+            <update-user-form :show="update_modal_show_flag" :update_users="update_users" @close='showUpdateUserModal()' />
         </template>
 
 
@@ -101,6 +139,8 @@
 </template>
 
 <script>
+    import JetDropdown from './../../Jetstream/Dropdown'
+    import JetDropdownLink from './../../Jetstream/DropdownLink'
     import JetButton from './../../Jetstream/Button'
     import JetDangerButton from './../../Jetstream/DangerButton'
     import JetSecondaryButton from './../../Jetstream/SecondaryButton'
@@ -112,11 +152,14 @@
     import JetActionMessage from './../../Jetstream/ActionMessage'
     import JetDialogModal from './../../Jetstream/DialogModal'
     import AddUserForm from '../../rakuju/ManageUser/AddUserForm'
+    import UpdateUserForm from '../../rakuju/ManageUser/UpdateUserForm'
     import Paginate from 'vuejs-paginate';
 
 
     export default {
         components: {
+            JetDropdown,
+            JetDropdownLink,
             JetActionMessage,
             JetButton,
             JetDangerButton,
@@ -128,6 +171,7 @@
             JetLabel,
             JetDialogModal,
             AddUserForm,
+            UpdateUserForm,
             Paginate,
         },
 
@@ -206,8 +250,10 @@
                 columns:columns,
 
                 user_list:[],
+                update_users:[],
 
                 add_modal_show_flag: false,
+                update_modal_show_flag:false,
                 delete_modal_show_flag: false,
 
             }
@@ -217,6 +263,13 @@
 
             showAddUserModal() {
                 this.add_modal_show_flag = this.add_modal_show_flag == true ? false : true
+            },
+            
+            showUpdateUserModal(user) {
+                console.log(user);
+                this.update_users = user;
+                console.log(this.update_users);
+                this.update_modal_show_flag = this.update_modal_show_flag == true ? false : true
             },
 
             showDeleteUserModal() {
