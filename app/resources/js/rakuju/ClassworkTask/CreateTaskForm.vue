@@ -236,7 +236,15 @@
                 }else if(this.content_select == "link"){// タイプがリンクのとき
                     this.contents.push({"type":"link","text":this.content_inputs,"url":this.content_url_inputs,"sort_num":this.contents.length});
                 }else if (this.content_select == "homework") {// タイプがhomework(課題)のとき
-                    this.contents.push({"type":"homework","text":this.content_inputs,"file_name":this.content_filename_inputs,"deadline":this.content_deadline_inputs, "sort_num":this.contents.length});
+                    let has_homework = false;
+                    this.contents.forEach(item => {
+                        if (item.type == "homework") {
+                            has_homework = true;
+                        }
+                    });
+                    if (!has_homework) {
+                        this.contents.push({"type":"homework","text":this.content_inputs,"file_name":this.content_filename_inputs,"deadline":this.content_deadline_inputs,"sort_num":this.contents.length});
+                    }
                 }
             },
 
