@@ -25,19 +25,19 @@
         </template>
 
         <template #table>
-            <div class="col-span-5">
+            <div class="col-span-5 py-2">
                 <thead>
-                <tr>
-                    <th class="py-4 px-3 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
+                    <tr>
+                        <th class="py-4 px-3 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
 
-                    </th>
-                    <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light hover:bg-blue-200" v-for="(value,key) in columns" :key="key">
-                        {{value}}
-                    </th>
-                    <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
+                        </th>
+                        <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light hover:bg-blue-200" v-for="(value,key) in columns" :key="key">
+                            {{value}}
+                        </th>
+                        <th class="py-4 px-6 bg-grey-lightest font-bold bg-gray-200 text-sm text-grey-dark border-b border-grey-light">
 
-                    </th>
-                </tr>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr class="hover:bg-blue-300" v-for="(user,key) in getList" :key="key">
@@ -54,21 +54,23 @@
                             <jet-dropdown id="update_delete" align="left" width="24">
                                 <template #trigger>
                                     <div class="px-0.5 items-center">
-                                        <button class="flex  text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                        <button class="text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
                                             ・・・
                                         </button>
                                     </div>
                                 </template>
                                 <template #content>
-                                    <div class="py-2 px-6 hover:bg-blue-300">
-                                        <button @click="showUpdateUserModal(user)" class="flex  items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
-                                            編集
-                                        </button>
-                                    </div>
-                                    <div class="py-2 px-6 hover:bg-blue-300">
-                                        <button class="flex  items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
-                                            削除
-                                        </button>
+                                    <div class="flex flex-col">
+                                        <div class="flex-auto py-0.5 hover:bg-blue-300">
+                                            <button @click="showUpdateUserModal(user)" class="w-full  items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                                編集
+                                            </button>
+                                        </div>
+                                        <div class="flex-auto py-0.5 hover:bg-blue-300">
+                                            <button class="w-full items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                                削除
+                                            </button>
+                                        </div>
                                     </div>
                                 </template>
                             </jet-dropdown>
@@ -90,7 +92,7 @@
                     :click-handler="clickCallback"
                     :prev-text="'＜'"
                     :next-text="'＞'"
-                    :container-class="'relative z-0 inline-flex shadow-sm -space-x-px px-6'"
+                    :container-class="'relative z-0 inline-flex -space-x-px '"
                     :page-class="'page-item'"
                     
                     :page-link-class="'relative inline-flex items-center px-4 py-2 border border-gray-300  text-sm font-medium text-gray-700 hover:bg-blue-300'"

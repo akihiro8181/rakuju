@@ -98,7 +98,7 @@
                     this.form.login_number = this.update_users.login_number;
                     // console.log(this.form.login_number);
                 }
-                console.log(this.form.name);
+                // console.log(this.form.name);
                 // `this` は vm インスタンスを指します
                return this.update_modal_show_flag = this.show
             },
@@ -145,7 +145,7 @@
             },
             updateUser() {
                 console.log("updateUser Start");
-                console.log(this.form.name);
+                // console.log(this.form.name);
                 this.form.put('/api/update-user/' + this.update_users.id, {
                     preserveScroll: true
                 });
