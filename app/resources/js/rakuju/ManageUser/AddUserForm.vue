@@ -124,6 +124,11 @@
             },
             
             closeAddUserModal(){
+                this.form.name = '',
+                this.form.roll_flag = '',
+                this.form.login_number = '',
+                this.form.password = '',
+
                 this.$emit('close');
                 // return this.add_modal_show_flag = false;
             },

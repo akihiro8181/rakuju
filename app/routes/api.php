@@ -38,4 +38,4 @@ Route::middleware('auth:sanctum')->delete('/storage/{classwork_task}/{file_name}
 
 // manageUser関連
 Route::middleware('auth:sanctum')->post('/add-user/', AddUser::class);
-Route::middleware('auth:sanctum')->put('/add-user/{user}', UpdateUser::class)->where('user', '[0-9]+');
+Route::middleware('auth:sanctum')->put('/update-user/{user}', UpdateUser::class)->where('user', '[0-9]+');
