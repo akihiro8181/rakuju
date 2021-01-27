@@ -25,7 +25,8 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'school_name' => ['required', 'string', 'max:255'],
             'school_admin_name' => ['required', 'string', 'max:255'],
-            'login_number' => ['required', 'string', 'max:255'],
+            'workspace_URL' => ['required', 'string', 'max:255', 'unique:schools,workspace_url'],
+            'login_number' => ['required', 'regex:/^\s*-?[0-9,]+\s*$/', 'max:255'],
             'password' => $this->passwordRules(),
         ])->validate();
 
