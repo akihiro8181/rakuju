@@ -93,7 +93,7 @@
 
                     <!-- school name -->
                     <div>学校名：{{$page.school.name}}</div>
-                    <div>役職：{{$page.user.roll_flag}}</div>
+                    <div>役職：{{$page.user.roll_flag | replaceRollFlag}}</div>
 
                     <!-- Navigation Links -->
                     <div v-if="$page.user.roll_flag == 'st'">
@@ -246,6 +246,25 @@
                     this.diaglogFlag = false;
                 }
             }
+        },
+
+        filters:{
+            // 時刻の文字列のフォーマット
+            replaceRollFlag(val) {
+                let str = val;
+                switch (val) {
+                    case 'st':
+                        str = '学生'
+                        break;
+                    case 'te':
+                        str = '教員'
+                        break;
+                    case 'ad':
+                        str = '管理者'
+                        break;
+                }
+                return str;   
+            },
         },
 
         computed: {

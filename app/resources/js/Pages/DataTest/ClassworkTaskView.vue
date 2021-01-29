@@ -33,7 +33,7 @@
                     </div>
                     <!-- コンテンツが１つ以上ある場合 -->
                     <div v-else>
-                        <div v-for="classwork_task in $page.in_charge.classwork_tasks" :key="classwork_task.sort_num">
+                        <div v-for="(classwork_task, classwork_task_index) in $page.in_charge.classwork_tasks" :key="classwork_task.sort_num">
                             <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
                                 <!-- 編集権限のあるユーザーの場合はボタンを表示 -->
                                 <div v-if="$page.user.roll_flag == 'te' || $page.user.roll_flag == 'ad'" class="flex space-x-4">
@@ -74,9 +74,9 @@
                                                 <!-- 登録されているファイル名の表示 -->
                                                 <li class="content_item_child type_link">
                                                     <p>ファイル名：{{content_item.file_name | replaceComma}}</p>
-                                                    <inertia-link :href="'/homework/' + classwork_task.id" class=" underline text-blue-600 visited:text-purple-600">提出ページへ</inertia-link>
+                                                    <!-- 課題提出ページへのリンク -->
+                                                        <inertia-link :href="'/homework/' + classwork_task.id" v-if="homeworkLastNum[classwork_task_index] == content_item.sort_num" class=" underline text-blue-600 visited:text-purple-600">提出ページへ</inertia-link>
                                                 </li>
-                                                <!-- 課題提出ページへのリンク -->
                                             </div>
                                         </div>
                                     </ul>
@@ -254,7 +254,21 @@
                     }
                 });
                 return max_sort_num;
-            }
+            },
+
+            homeworkLastNum() {
+                let homework_last_num = [];
+                this.$inertia.page.props.in_charge.classwork_tasks.forEach(task => {
+                    let sort_num = 0;
+                    task.contents.forEach(content => {
+                        if (content.type == 'homework') {
+                            sort_num = content.sort_num;
+                        }
+                    });
+                    homework_last_num.push(sort_num);
+                });
+                return homework_last_num;
+            },
         },
     }
 </script>
