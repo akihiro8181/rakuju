@@ -34,11 +34,11 @@
                                     <template #content>
                                         <!-- Account Management -->
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            Manage Account
+                                            アカウント管理
                                         </div>
 
                                         <jet-dropdown-link :href="route('profile.show')">
-                                            Profile
+                                            プロフィール
                                         </jet-dropdown-link>
 
                                         <jet-dropdown-link :href="route('api-tokens.index')" v-if="$page.jetstream.hasApiFeatures">
@@ -48,7 +48,7 @@
                                         <!-- School Information -->
                                         <div v-if="$page.user.roll_flag == 'st' || $page.user.roll_flag == 'te'">
                                             <jet-dropdown-link :href="route('schoolinformation')">
-                                                School-Information
+                                                学校情報
                                             </jet-dropdown-link>              
                                         </div>                                        
 
@@ -58,16 +58,16 @@
 
                                         <div v-if="$page.user.roll_flag == 'ad'">
                                             <div class="block px-4 py-2 text-xs text-gray-400">
-                                                Manage School
+                                                学校管理
                                             </div>                                        
                                             <jet-dropdown-link :href="route('schoolinformation')">
-                                                School-Information
+                                                学校情報
                                             </jet-dropdown-link>
+                                            <!-- <jet-dropdown-link :href="route('schoolinformation')">
+                                                
+                                            </jet-dropdown-link> -->
                                             <jet-dropdown-link :href="route('schoolinformation')">
-                                                Add Classwork
-                                            </jet-dropdown-link>
-                                            <jet-dropdown-link :href="route('schoolinformation')">
-                                                Add User
+                                                ユーザー追加
                                             </jet-dropdown-link>                                                                                        
                                         </div>
 
@@ -76,7 +76,7 @@
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
                                             <jet-dropdown-link as="button">
-                                                Logout
+                                                ログアウト
                                             </jet-dropdown-link>
                                         </form>
                                     </template>
@@ -124,9 +124,9 @@
                                 </jet-nav-link>
                             </div>
                             <div>
-                                <jet-nav-link :href="route('manageclasswork')" :active="$page.currentRouteName == 'manageclasswork'">
+                                <!-- <jet-nav-link :href="route('manageclasswork')" :active="$page.currentRouteName == 'manageclasswork'">
                                     授業管理
-                                </jet-nav-link>
+                                </jet-nav-link> -->
                             </div>
                         </div>
 

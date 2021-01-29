@@ -5,9 +5,9 @@
             <jet-button @click.native="showAddUserModal">
                 ユーザ追加
             </jet-button>
-            <jet-danger-button @click.native="showDeleteUserModal">
+            <!-- <jet-danger-button @click.native="showDeleteUserModal">
                 ユーザー削除
-            </jet-danger-button>
+            </jet-danger-button> -->
         </template>
 
         <template #header>

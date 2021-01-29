@@ -34,8 +34,8 @@
 
 
             <div class="mt-4">
-                <x-jet-label for="password" value="{{ __('Password') }}" />
-                <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+                <x-jet-label for="password" value="{{ __('Password') }}"  /> 
+                <x-jet-input id="password" class="block mt-1 w-full" placeholder="英数字8桁以上" type="password" name="password" required autocomplete="new-password" />
             </div>
 
 
