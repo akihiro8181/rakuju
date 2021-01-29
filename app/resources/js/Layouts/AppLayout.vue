@@ -4,7 +4,7 @@
             <!-- Primary Navigation Menu -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="justify-between h-16">
-                    <div class="flex">
+                    <div class="flex items-center">
                         <!-- Logo -->
                         <div class="flex-shrink-0 flex items-center">
                             <inertia-link :href="route('dashboard')">
@@ -91,9 +91,13 @@
                         </div>
                     </div>
 
-                    <!-- school name -->
-                    <div>学校名：{{$page.school.name}}</div>
-                    <div>役職：{{$page.user.roll_flag | replaceRollFlag}}</div>
+                    <div class="mt-3">
+                        <!-- school name -->
+                        <div>学校名：{{$page.school.name}}</div>
+                        <div>役職：{{$page.user.roll_flag | replaceRollFlag}}</div>
+                    </div>
+
+                    <hr class="mt-3 mb-3">
 
                     <!-- Navigation Links -->
                     <div v-if="$page.user.roll_flag == 'st'">
@@ -104,6 +108,8 @@
                     </div>
                     <div v-if="$page.user.roll_flag == 'ad'">
                         <in-charge-list />
+
+                        <hr class="mt-3 mb-3">
                         
                         <div>
                             <p>学校管理</p>

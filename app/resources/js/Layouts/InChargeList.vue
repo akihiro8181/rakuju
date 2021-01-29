@@ -1,11 +1,11 @@
 <template>
     <div>
         <p>授業一覧</p>
-        <ul id="classwork-tasks">
+        <ul id="classwork-tasks" class="ml-3">
             <li v-for="classwork in $inertia.page.props.classworks" :key="classwork.id">
                 {{classwork.name}}
                 <ul v-for="in_charge in classwork.in_charges" :key="in_charge.id">
-                    <jet-nav-link :href="'/classwork-task/'+in_charge.id" :active="$inertia.page.url == '/classwork-task/'+in_charge.id">
+                    <jet-nav-link :href="'/classwork-task/'+in_charge.id" :active="$inertia.page.url == '/classwork-task/'+in_charge.id" class="ml-2">
                         担当者：{{ in_charge.name }}
                     </jet-nav-link>
                 </ul>
