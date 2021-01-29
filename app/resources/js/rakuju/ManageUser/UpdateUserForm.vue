@@ -39,11 +39,11 @@
             </div>
 
             <!-- loginNumber-->
-            <div class="col-span-5">
+            <!-- <div class="col-span-5">
                 <jet-label for="password" value="パスワード" />
                 <jet-input id="password" type="password" class="mt-1 block w-full" v-model="form.password" />
                 <jet-input-error :message="form.error('password')" class="mt-2" />
-            </div>
+            </div> -->
             
         </template>
 
