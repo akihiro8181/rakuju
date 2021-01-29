@@ -463,6 +463,7 @@
                 this.classEnd = true;
             },
             classOver(){
+                this.room.close();
                 window.close();
             },
             onClickVideo:function(e){
