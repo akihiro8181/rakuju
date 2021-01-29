@@ -10,7 +10,7 @@
             </div>
             <div class="my-video">
                 <div v-if="showBackG" class="backG"></div>
-                <video :srcObject.prop="localVideoStream" autoplay></video>
+                <video :srcObject.prop="localVideoStream" muted autoplay></video>
                 <div class="tools">
                     <div :class="{active:videoEnable}" class="t1 t" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
                     <div :class="{active:audioEnable}" class="t2 t" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
@@ -123,10 +123,36 @@
                 </div>
             </div>
         </div>
+        <div class="dialog" v-if="classEnd">
+            <div class="modal-content sys">
+                <div class="modal-header">
+                    <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="content-text">
+                        {{outMsg}}
+                    </div>
+                    <div class="okButton" @click="dialogOk">OK</div>
+                </div>
+            </div>
+        </div>
         <div v-if="onShowBigImg" ref="leaveDialog" class="dialog">
             <div class="img-content">
                 <div class="img-fa">
                     <img ref="bigImg" :src="showImgUrl">
+                </div>
+            </div>
+        </div>
+        <div class="videoList">
+            <div class="modal-content">
+                <div class="video-List">
+                    <div class="video-List-inner">
+                        <div class="video-Item" v-for="(value,key) in classMete" :key="key">
+                            <div class="video-Item-inner">
+                                <video :srcObject.prop="value.stream" autoplay></video>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,6 +164,7 @@
         props: ['user'],
         data(){
             return{
+                classEnd:false,
                 waitDialog:true,                //承認待ち用
                 localStream:undefined,           //カメラ用
                 localVideoStream: undefined,          //画面上に表示するストリーム
@@ -159,9 +186,21 @@
                 selectedFiles:[],
                 onShowBigImg:false,
                 showImgUrl:'',
+                reJoinList:[],
+                classMete:[],
+                outMsg:"",
             }
         },
         methods: {
+            getName(id){
+                var name ;
+                this.classMete.forEach((item)=>{
+                    if(item.id==id){
+                        name = item.name;
+                    }
+                })
+                return name;
+            },
             init(){
                 this.waitRoom = this.peer.joinRoom(`waitRoom${this.CLASS_CODE}`,{
                     mode:'sfu',
@@ -169,11 +208,11 @@
                 
                 if(this.waitRoom!=undefined){
                     this.waitRoom.once('open', () => {
-                        this.waitRoom.send({"id":this.user.id,"status":"wait","roll_flag":this.user.roll_flag})
+                        this.waitRoom.send({"id":this.user.id,"name":this.user.name,"status":"wait","roll_flag":this.user.roll_flag})
                     });
                     this.waitRoom.on('peerJoin', peerId => {
                         if(peerId.substring(1,3)=="te"){
-                            this.waitRoom.send({"id":this.user.id,"status":"wait","roll_flag":this.user.roll_flag})
+                            this.waitRoom.send({"id":this.user.id,"name":this.user.name,"status":"wait","roll_flag":this.user.roll_flag})
                         }
                     });
                     this.waitRoom.on('data', ({ data, src }) => {
@@ -216,21 +255,16 @@
                                     navigator.mediaDevices.getUserMedia({
                                         audio:true,
                                     }).then(stream => {
-                                        var canvas = document.createElement('canvas');
-                                        var canvasStream = canvas.captureStream();
-                                        canvasStream.addTrack(stream.getAudioTracks()[0]);
-                                        this.localStream = canvasStream;
-                                        this.localVideoStream = canvasStream;
+                                        this.localStream = stream;
+                                        this.videoStream = stream;
                                         this.noVideo = true;
-                                        console.log(this.localStream.getAudioTracks()[0]);
+                                        // console.log(this.localStream.getAudioTracks()[0]);
                                         this.$refs.js_messages.append(this.addElement('div',"カメラが取得できませんでした。",'systemMsg',''));
                                         this.joinClassRoom();
                                     }).catch(e=>{
-                                        this.noVideo = true;
-                                        this.noAudio = true;
-                                        this.getMock();
-                                        this.$refs.js_messages.append(this.addElement('div',"カメラとマイクが取得できませんでした。",'systemMsg',''));
-                                        this.joinClassRoom();
+                                        this.classEnd = true;
+                                        this.outMsg = "授業開設失敗しました、カメラとマイクどちらが有効にしてください";
+                                        // this.$refs.js_messages.append(this.addElement('div',"カメラとマイクが取得できませんでした,どちらが有効にしてください",'systemMsg',''));
                                     });
                                 });
                             });
@@ -248,31 +282,62 @@
                     // roomt on lisener
                     this.room.once('open', () => {
                         this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
-                        this.room.send({"type":100,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
+                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
                     });
 
                     this.room.on('peerJoin', peerId => {
-                        this.room.send({"type":100,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                        if(this.reJoinList.indexOf(peerId.substring(3))!=-1){
+                            this.reJoinList.splice(this.reJoinList.indexOf(peerId.substring(3)),1);
+                            return
+                        }
+                        // console.log(peerId)
+                        if(peerId.substring(1,3)=="te"){
+                            this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                        }else{
+                            this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
+                        }
                     });
                 
                     this.room.on('stream', async stream => {
-                        stream.getVideoTracks()[0].addEventListener("mute", event => {
-                            this.showTBG = true;
-                            console.log("muete");
-                        }, false);
                         if(stream.peerId.substring(1,3)=="te"){
+                            console.log(stream.getVideoTracks());
                             this.teacherVideoStream = stream;
-                            this.showTBG = false;
+                            if(this.teacherVideoStream.getVideoTracks()[0]!=undefined){
+                                this.showTBG = false;
+                            }
+                        }else{
+                            this.classMete.forEach((item)=>{
+                                if(item.id==stream.peerId.substring(3)){
+                                    item.stream = stream;
+                                }
+                            });
                         }
                     });
             
                     this.room.on('data', ({ data, src }) => {
+                        console.log(data);
                         if(data.type==100){
                             if(data.roll_flag==="st"){
                                 return
                             }
                             if(data.cmd == 3){
                                 this.showTBG = data.value;
+                            }
+                            if(data.cmd == 8){
+                                this.reJoinList.push(data.id.toString());
+                                this.room.send({"type":100,"cmd":8,"value":true,"roll_flag":this.user.roll_flag});
+                            }
+                            if(data.cmd == 33){
+                                this.classEnd = true;
+                            }
+                            if(data.cmd == 99 || data.cmd==9){
+                                var itemSt = this.classMete.find((item)=>{
+                                    item.id == data.id;
+                                })
+                                if(itemSt==undefined){
+                                    this.classMete.push({"id":data.id,"name":data.name,"stream":""});
+                                }
                             }
                             if(data.id == this.user.id){
                                 switch(data.cmd) {
@@ -292,16 +357,16 @@
                         }
                         if(data.type==200){
                             if(data.roll_flag=='te'){
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'teacherMsg',200);
+                                this.createMsg('/images/bubble.png',data.name,data.roll_flag,data.msg,'teacherMsg',200);
                             }else{
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg',200);
+                                this.createMsg('/images/bubble.png',this.getName(data.id),data.roll_flag,data.msg,'studentMsg',200);
                             }
                         }
                         if(data.type==1 || data.type==0){
                             if(data.roll_flag=='te'){
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data,'teacherMsg',100);
+                                this.createMsg('/images/bubble.png',data.name,data.roll_flag,data,'teacherMsg',100);
                             }else{
-                                this.createMsg('/images/bubble.png',data.id,data.roll_flag,data,'studentMsg',100);
+                                this.createMsg('/images/bubble.png',this.getName(data.id),data.roll_flag,data,'studentMsg',100);
                             }
                         }
                     });
@@ -309,7 +374,16 @@
                     this.room.on('peerLeave', peerId => {
                         if(peerId.substring(1,3)=="te"){
                             this.showTBG = true;
-                            console.log("leave");
+                        }else{
+                            if(this.reJoinList.indexOf(peerId.substring(3))!=-1){
+                                return
+                            }
+                            this.appendMsg(this.addElement('div',`${this.getName(peerId.substring(3))}さんが退出しました。`,'systemMsg',''));
+                            this.classMete.forEach((item,index)=>{
+                                if(item.id==peerId.substring(3)){
+                                    this.classMete[index].splice(index,1);
+                                }
+                            });
                         }
                     });
             
@@ -360,6 +434,9 @@
                 }
             },
             onScreenShare(){
+                if(this.noVideo){
+                    return
+                }
                 if(this.share){
                     this.localVideoStream.getVideoTracks()[0].stop();
                     if(this.localVideoStream.getAudioTracks()[0]!=undefined){
@@ -369,7 +446,6 @@
                 }else{
                     navigator.mediaDevices.getDisplayMedia({ 
                         video: { width: 1024, height: 760 },
-                        audio:true,
                     }).then(stream => {
                         this.share=true;
                         this.showBackG = false;
@@ -410,13 +486,13 @@
                 if(this.$refs.localText.innerText != ''){
                     var text = this.$refs.localText.innerText;
                     this.room.send(this.jsonMsg(this.user.id,text));
-                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'studentMsg',200);
+                    this.createMsg('/images/bubble.png',this.user.name,this.user.roll_flag,text,'studentMsg',200);
                     this.$refs.localText.innerText = '';
                 }
                 if(this.selectedFiles.length > 0){
-                    this.selectedFiles.forEach((item,index)=>{
-                        this.room.send(this.selectedFiles[index]);
-                        this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,this.selectedFiles[index],'studentMsg',100);
+                    this.selectedFiles.forEach((item)=>{
+                        this.room.send(item);
+                        this.createMsg('/images/bubble.png',this.user.name,this.user.roll_flag,item,'studentMsg',100);
                     })
                     this.selectedFiles=[]
                 }
@@ -425,7 +501,6 @@
                 this.diaglogFlag = true;
             },
             dialogOk(){
-                this.room.close();
                 window.close();
             },
             onClickVideo:function(e){
@@ -538,15 +613,19 @@
                 this.room.send(this.jsonCmd(this.user.id,2));
             },
             jsonMsg(id,text){
-                return {"type":200,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
+                return {"type":200,"name":this.user.name,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
             },
             jsonCmd(id,cmd){
                 return {"type":100,"id":id,"cmd":cmd,"value":this.handUp,roll_flag:this.user.roll_flag};
             },
-            getMock(){
-                var canvas = document.createElement('canvas');
-                this.localStream = canvas.captureStream();
-                this.localVideoStream = canvas.captureStream();
+            getMock(tracks){
+                var ctx = document.createElement('canvas');
+                var stream = ctx.captureStream(0);
+                if(tracks!=""){
+                    stream.addTrack(tracks);
+                }
+                this.localStream = stream;
+                this.localVideoStream = stream;
             },
             showFileSelectWindow(e){
                 if(this.selectedFiles.length>=10){
@@ -568,7 +647,7 @@
                 if(file.type.split("/")[0]=="image"){
                     type = 1
                 }
-                this.selectedFiles.push({"type":type,"fileName":file.name,"fileUrl":fileUrl,"id":this.user.id,"roll_flag":this.user.roll_flag});
+                this.selectedFiles.push({"type":type,"fileName":file.name,"fileUrl":fileUrl,"name":this.user.name,"roll_flag":this.user.roll_flag});
             },
             previewFile(file){
                 // FileReaderオブジェクトを作成
@@ -642,6 +721,17 @@
 </script>
 
 <style lang="css">
+.videoList{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
 .img-fa img{
     cursor: zoom-out;
 }
@@ -881,7 +971,10 @@ h1{
 }
 .my-video video{
     height: 70%;
-    width: 100%;
+    /* width: 100%; */
+    margin: auto;
+    border: 1px solid white;
+    box-shadow: 0 0 3px 1px white;
 }
 .tools{
     display: flex;
@@ -965,7 +1058,7 @@ h1{
     width: 100%;
 }
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
     height: 8px;
     background-color: transparent;
 }
