@@ -14,7 +14,7 @@
 
         <template #header>
             <div class="col-span-5">
-                <select v-model="search_column" id="search_column">
+                <select v-model="search_column" id="search_column" class="form-select rounded-md shadow-sm">
                     <option value="name" selected> 名前 </option>
                     <option value="roll_flag"> 役職 </option>
                     <option value="login_number"> ログインナンバー</option>

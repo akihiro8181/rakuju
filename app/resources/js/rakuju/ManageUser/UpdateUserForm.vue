@@ -21,7 +21,7 @@
             <!-- rollFlag -->
             <div class="col-span-5">
                 <jet-label for="roll_flag" value="役職" />
-                <select v-model="form.roll_flag" id="roll_flag">
+                <select v-model="form.roll_flag" id="roll_flag" class="form-select rounded-md shadow-sm">
                     <option value="ad"> 管理者 </option>
                     <option value="te"> 教員 </option>
                     <option value="st"> 生徒 </option>
