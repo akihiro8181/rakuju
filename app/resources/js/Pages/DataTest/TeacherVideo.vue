@@ -16,9 +16,9 @@
                                         <div class="listNameTag">{{key+1}}．{{value.name}}</div>
                                         <div class="optionButton">
                                             <div v-if="value.handUp" class="hand ob" @click="handDown(value.id)"></div>
-                                            <div v-if="videoStream.getVideoTracks()[0]!=undefined&&value.stream.getVideoTracks()[0]!=undefined" :class="{videoOn:value.live}" class="switchStudentVideo ob" @click="switchVideoStream(value.id)"></div>
+                                            <div v-if="videoStream.getVideoTracks()[0]!=undefined&&value.stream!=''&&value.stream.getVideoTracks()[0]!=undefined" :class="{videoOn:value.live}" class="switchStudentVideo ob" @click="switchVideoStream(value.id)"></div>
                                             <div v-if="!value.noAudio" :class="{micOn:value.audio}" class="audioSwitch ob" @click="mute(value.id)"></div>
-                                            <div class="out ob" @click="out(value.id)">&times;</div>
+                                            <div class="out ob" @click="out(value.id)">x</div>
                                         </div>
                                     </li>
                                 </transition-group>
@@ -107,7 +107,7 @@
             </div>
         </div>
         <!-- studentOut -->
-        <div class="dialog" ref="leaveDialog" v-if="adOut">
+        <div class="dialog" ref="sureOut" v-if="adOut">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="closeButton" ref="js_Close_Dialog">&times;</span>
@@ -133,7 +133,7 @@
             </div>
         </div>
         <!-- video-check -->
-        <div :class="{showVideoList:onCheck}" ref="leaveDialog" class="videoList">
+        <div :class="{showVideoList:onCheck}" ref="videoList" class="videoList">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="closeButton" ref="js_Close_Dialog">&times;</span>
@@ -150,7 +150,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="onShowBigImg" ref="leaveDialog" class="dialog">
+        <div v-if="onShowBigImg" ref="imgDialog" class="dialog">
             <div class="img-content">
                 <div class="img-fa">
                     <img ref="bigImg" :src="showImgUrl">
@@ -170,7 +170,7 @@
                 localStream:undefined,           //カメラ用
                 videoStream: undefined,          //画面上に表示するストリーム
                 share:false,                     //share flag
-                CLASS_CODE:'123',                //授業Code
+                CLASS_CODE:'1234',                //授業Code
                 roomStudentList:[],　　//学生のカメラストリームリスト
                 peer:undefined,                //Peerのオブジェクト
                 room:undefined,               //Room のオブジェクト
@@ -232,6 +232,9 @@
                 });
                 if(this.room!=undefined){
                     this.room.on('peerJoin', peerId => {
+                        if(this.reJoinList.indexOf(peerId.substring(3))!=-1){
+                            this.reJoinList.splice(this.reJoinList.indexOf(peerId.substring(3)),1);
+                        }
                         // this.roomStudentList.push({"id":peerId.substring(3),"name":"","stream":"","handUp":"","video":"","audio":"","noVideo":"","noAudio":"","live":false,"onSharing":false});
                         // this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが入りました ===`,'systemMsg',''));
                     });
@@ -239,7 +242,7 @@
                     this.room.on('stream', async stream => {
                         var has = false;
                         this.roomStudentList.forEach((item)=>{
-                            if(item.id == stream.peerId.substring(3)){
+                            if(item.id == parseInt(stream.peerId.substring(3))){
                                 item.stream = stream;
                                 has = true;
                             }
@@ -247,12 +250,11 @@
                         if(has){
                             return
                         }else{
-                            this.roomStudentList.push({"id":stream.peerId.substring(3),"name":"","stream":stream,"handUp":"","video":"","audio":"","noVideo":"","noAudio":"","live":false,"onSharing":false});
+                            this.roomStudentList.push({"id":parseInt(stream.peerId.substring(3)),"name":"","stream":stream,"handUp":"","video":"","audio":"","noVideo":"","noAudio":"","live":false,"onSharing":false});
                         }
                     });
             
                     this.room.on('data', ({ data, src }) => {
-                        // console.log(data);
                         if(data.type==100){
                             if(data.cmd==2){
                                 this.roomStudentList.forEach((item)=>{
@@ -269,30 +271,27 @@
                                 });
                             }
                             if(data.cmd==8){
-                                // console.log(this.shareStream);
                                 this.rejoinRoom(this.videoStream);
                             }
-                            if(data.cmd==10){
-                                this.roomStudentList.forEach((item)=>{
-                                    if(item.id==data.id){
-                                        item.onSharing = data.value
-                                    }
-                                });
+                            if(data.cmd==88){
+                                this.rejoinList.push(data.id.toString());
+                                this.room.send({"type":100,"cmd":90,"value":true,"roll_flag":this.user.roll_flag});
                             }
                             if(data.cmd==9){
-                                var itemSt = this.roomStudentList.find((item)=>{
+                                var has = false;
+                                this.roomStudentList.forEach((item)=>{
                                     item.id == data.id;
+                                    item.name = data.name;
+                                    item.handUp = data.handUp;
+                                    item.video = data.video;
+                                    item.audio = data.audio;
+                                    item.noVideo = data.noVideo;
+                                    item.noAudio = data.noAudio;
+                                    item.onSharing = data.onSharing;
+                                    has = true;
                                 })
-                                if(itemSt == undefined){
+                                if(!has){
                                     this.roomStudentList.push({"id":data.id,"name":data.name,"stream":"","handUp":data.handUp,"video":data.video,"audio":data.audio,"noVideo":data.noVideo,"noAudio":data.noAudio,"live":false,"onSharing":data.onSharing});
-                                }else{
-                                    itemSt.name = data.name;
-                                    itemSt.handUp = data.handUp;
-                                    itemSt.video = data.video;
-                                    itemSt.audio = data.audio;
-                                    itemSt.noVideo = data.noVideo;
-                                    itemSt.noAudio = data.noAudio;
-                                    itemSt.onSharing = data.onSharing;
                                 }
                                 // this.roomStudentList.push({"id":data.id,"name":data.name,"stream":"","handUp":data.handUp,"video":data.video,"audio":data.audio,"noVideo":data.noVideo,"noAudio":data.noAudio,"live":false,"onSharing":data.onSharing});
                                 this.appendMsg(this.addElement('div',`=== ${data.name}さんが入りました ===`,'systemMsg',''));
@@ -308,6 +307,9 @@
                     });
             
                     this.room.on('peerLeave', peerId => {
+                        if(this.rejoinList.indexOf(peerId.substring(3))!=-1){
+                            return
+                        }
                         this.appendMsg(this.addElement('div',`=== ${this.getName(peerId.substring(3))}さんが退室しました ===\n`,'systemMsg',''));
                         this.deleteStudentList(peerId.substring(3));
                         this.roomStudentList.forEach((item)=>{
@@ -333,7 +335,6 @@
                     if(this.videoStream.getVideoTracks()[0].enabled){
                         //close the video
                         this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
-                        // console.log(this.videoStream.getVideoTracks()[0]);
                         this.showBackG = true;
                         this.videoEnable = true;
                         // this.room.send({"type":100,"cmd":3,"value":true});
@@ -412,7 +413,6 @@
                 this.joinRoom(stream);
             },
             showLocalVideo(){
-                // console.log("ok");
                 this.share=false;
                 if(this.showStudentVideo){
                     this.shareStream = undefined;
@@ -467,7 +467,7 @@
                 window.close();
             },
             onClickVideo:function(e){
-                if (e.target == this.$refs.leaveDialog || e.target == this.$refs.js_Close_Dialog ||e.target == this.$refs.bigImg) {
+                if (e.target == this.$refs.leaveDialog || e.target == this.$refs.js_Close_Dialog ||e.target == this.$refs.bigImg || e.target.innerText== "×" || e.target == this.$refs.videoList || e.target == this.$refs.imgDialog || e.target == this.$refs.sureOut) {
                     this.diaglogFlag = false;
                     this.adOut = false;
                     this.onCheck = false;
@@ -636,7 +636,9 @@
                             }else{
                                 //自分のVideoを表示する
                                 this.videoStream = this.localStream;
-                                this.showBackG = true;
+                                if(this.noVideo){
+                                    this.showBackG = true;
+                                }
                             }
                             //学生画面を表示しているにしない
                             this.showStudentVideo = false;
@@ -656,8 +658,6 @@
                             //学生画面を表示しているにする
                             this.showStudentVideo = true;
                         }
-                        //表示したVideoをRoomに送信
-                        // console.log(this.videoStream);
                     }
                 })
                 this.room.send({"type":100,"cmd":3,"value":this.showBackG});
@@ -715,7 +715,6 @@
                             alert("1度にアップロードできるのは 10 個のファイル までです。");
                             break;
                         }
-                        // console.log(files[i].type.split("/")[0]);
                         //close 那个的旋转角度
                         if(files[i].type.split("/")[0]!="image"){
                             alert("アップロードしたファイルは画像ファイルではありません。");
@@ -1223,7 +1222,7 @@ h1{
 .out {
     text-align: center;
     font-weight: bolder;
-    line-height: 38px;
+    line-height: 35px;
     font-size: 40px;
 }
 .ob:hover{

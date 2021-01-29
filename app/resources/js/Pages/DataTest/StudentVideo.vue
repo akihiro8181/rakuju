@@ -164,13 +164,14 @@
         props: ['user'],
         data(){
             return{
+                onShareStream:undefined,
                 classEnd:false,
                 waitDialog:true,                //承認待ち用
                 localStream:undefined,           //カメラ用
                 localVideoStream: undefined,          //画面上に表示するストリーム
                 teacherVideoStream:undefined,
                 share:false,                     //share flag
-                CLASS_CODE:'123',                //授業Code
+                CLASS_CODE:'1234',                //授業Code
                 peer:undefined,                //Peerのオブジェクト
                 room:undefined,               //Room のオブジェクト
                 diaglogFlag:false,           //退出dialog FLag 
@@ -189,6 +190,7 @@
                 reJoinList:[],
                 classMete:[],
                 outMsg:"強制退出されました。",
+                reJoin:false,
             }
         },
         methods: {
@@ -239,7 +241,12 @@
                                 this.localStream = stream;
                                 this.localVideoStream = stream;
                                 this.showBackG = false;
-                                this.joinClassRoom();
+                                this.joinClassRoom(this.localVideoStream);
+                                this.room.once('open', () => {
+                                    this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
+                                    this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
+                                    this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                                });
                             }).catch(e=>{
                                 console.log(`${e.type}:${e}`);
                                 navigator.mediaDevices.getUserMedia({
@@ -250,17 +257,27 @@
                                     this.showBackG = false;
                                     this.noAudio = true;
                                     this.$refs.js_messages.append(this.addElement('div',"マイクが取得できませんでした。",'systemMsg',''));
-                                    this.joinClassRoom();
+                                    this.joinClassRoom(this.localVideoStream);
+                                    this.room.once('open', () => {
+                                        this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
+                                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
+                                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                                    });
                                 }).catch(e=>{
                                     navigator.mediaDevices.getUserMedia({
                                         audio:true,
                                     }).then(stream => {
                                         this.localStream = stream;
-                                        this.videoStream = stream;
+                                        this.localVideoStream = stream;
                                         this.noVideo = true;
                                         // console.log(this.localStream.getAudioTracks()[0]);
                                         this.$refs.js_messages.append(this.addElement('div',"カメラが取得できませんでした。",'systemMsg',''));
-                                        this.joinClassRoom();
+                                        this.joinClassRoom(this.localVideoStream);
+                                        this.room.once('open', () => {
+                                            this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
+                                            this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
+                                            this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
+                                        });
                                     }).catch(e=>{
                                         this.classEnd = true;
                                         this.outMsg = "授業開設失敗しました、カメラとマイクどちらが有効にしてください";
@@ -272,19 +289,14 @@
                     });
                 }
             },
-            joinClassRoom(){
+            joinClassRoom(stream){
                 this.room = this.peer.joinRoom(this.CLASS_CODE,{
                     mode: 'sfu',
-                    stream: this.localVideoStream,
+                    stream: stream,
                 });
 
                 if(this.room!=undefined){
                     // roomt on lisener
-                    this.room.once('open', () => {
-                        this.appendMsg(this.addElement('div',`${this.CLASS_CODE}に参加しました。`,'systemMsg',''));
-                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"cmd":99});
-                        this.room.send({"type":100,"name":this.user.name,"id":this.user.id,"handUp":this.handUp,"cmd":9,"video":!this.videoEnable,"audio":!this.audioEnable,"noVideo":this.noVideo,"noAudio":this.noAudio,"onSharing":this.share,"roll_flag":this.user.roll_flag});
-                    });
 
                     this.room.on('peerJoin', peerId => {
                         if(this.reJoinList.indexOf(peerId.substring(3))!=-1){
@@ -301,7 +313,7 @@
                 
                     this.room.on('stream', async stream => {
                         if(stream.peerId.substring(1,3)=="te"){
-                            console.log(stream.getVideoTracks());
+                            // console.log(stream.getVideoTracks());
                             this.teacherVideoStream = stream;
                             if(this.teacherVideoStream.getVideoTracks()[0]!=undefined){
                                 this.showTBG = false;
@@ -316,7 +328,7 @@
                     });
             
                     this.room.on('data', ({ data, src }) => {
-                        console.log(data);
+                        // console.log(data);
                         if(data.type==100){
                             if(data.roll_flag==="st"){
                                 return
@@ -327,6 +339,12 @@
                             if(data.cmd == 8){
                                 this.reJoinList.push(data.id.toString());
                                 this.room.send({"type":100,"cmd":8,"value":true,"roll_flag":this.user.roll_flag});
+                            }
+                            if(data.cmd == 88){
+                                this.reJoinList.push(data.id.toString());
+                            }
+                            if(data.cmd == 90){
+                                this.rejoinRoom(this.localVideoStream);
                             }
                             if(data.cmd == 33){
                                 this.outMsg = "授業を終了しました。"
@@ -393,6 +411,10 @@
                     // });
                 }
             },
+            rejoinRoom(stream){
+                this.room.close();
+                this.joinClassRoom(stream);
+            },
             sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             },
@@ -436,14 +458,11 @@
                 }
             },
             onScreenShare(){
-                if(this.noVideo){
-                    return
-                }
+                // if(this.noVideo){
+                //     return
+                // }
                 if(this.share){
                     this.localVideoStream.getVideoTracks()[0].stop();
-                    if(this.localVideoStream.getAudioTracks()[0]!=undefined){
-                        this.localVideoStream.getAudioTracks()[0].stop();
-                    }
                     this.showLocalVideo();
                 }else{
                     navigator.mediaDevices.getDisplayMedia({ 
@@ -451,17 +470,30 @@
                     }).then(stream => {
                         this.share=true;
                         this.showBackG = false;
-                        if(this.noVideo){
-                            this.room.send({"type":100,"id":this.user.id,"value":true,"cmd":10,"roll_flag":this.user.roll_flag});
-                        }
-                        if(!this.localVideoStream.getVideoTracks()[0].enabled){
-                            this.localVideoStream=stream;
-                            this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
-                        }else{
-                            this.localVideoStream=stream;
-                        }
+                        // if(this.noVideo){
+                        //     this.room.send({"type":100,"id":this.user.id,"value":true,"cmd":10,"roll_flag":this.user.roll_flag});
+                        // }
                         stream.getVideoTracks()[0].addEventListener('ended', () => {this.showLocalVideo()});
-                        this.room.replaceStream(this.localVideoStream);
+                        var shareStream;
+                        if(this.localVideoStream.getAudioTracks()[0]==undefined){
+                            shareStream = new MediaStream([stream.getVideoTracks()[0]]);
+                        }else{
+                            shareStream = new MediaStream([stream.getVideoTracks()[0],this.localVideoStream.getAudioTracks()[0]]);
+                        }
+                        this.onShareStream = shareStream;
+                         if(this.noVideo){
+                            this.localVideoStream = shareStream;
+                            this.reJoin = true;
+                            this.room.send({"type":100,"id":this.user.id,"cmd":88});
+                        }else{
+                            if(!this.localVideoStream.getVideoTracks()[0].enabled){
+                                this.localVideoStream=shareStream;
+                                this.localVideoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                            }else{
+                                this.localVideoStream=shareStream;
+                            }
+                            this.room.replaceStream(this.localVideoStream);
+                        }
                     }).catch(e=>{console.log("err:"+e)});
                 }
             },
@@ -469,7 +501,10 @@
                 this.share=false;
                 if(this.noVideo){
                     this.showBackG = true;
-                    this.room.send({"type":100,"id":this.user.id,"value":false,"cmd":10,"roll_flag":this.user.roll_flag});
+                    this.localVideoStream = this.localStream;
+                    this.room.replaceStream(this.localVideoStream);
+                    return
+                    // this.room.send({"type":100,"id":this.user.id,"value":false,"cmd":10,"roll_flag":this.user.roll_flag});
                 }
                 if(!this.localVideoStream.getVideoTracks()[0].enabled){
                     this.localVideoStream = this.localStream;
