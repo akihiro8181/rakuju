@@ -13,10 +13,10 @@
                             <ol class="listContent">
                                 <transition-group name="show">
                                     <li v-for="(value,key) in roomStudentList" :key="'student'+key">
-                                        <div class="listNameTag">{{key+1}}．ID:{{value.id}}</div>
+                                        <div class="listNameTag">{{key+1}}．{{value.name}}</div>
                                         <div class="optionButton">
                                             <div v-if="value.handUp" class="hand ob" @click="handDown(value.id)"></div>
-                                            <div v-if="!value.noVideo||value.onSharing" :class="{videoOn:value.live}" class="switchStudentVideo ob" @click="switchVideoStream(value.id)"></div>
+                                            <div v-if="videoStream.getVideoTracks()[0]!=undefined&&value.stream.getVideoTracks()[0]!=undefined" :class="{videoOn:value.live}" class="switchStudentVideo ob" @click="switchVideoStream(value.id)"></div>
                                             <div v-if="!value.noAudio" :class="{micOn:value.audio}" class="audioSwitch ob" @click="mute(value.id)"></div>
                                             <div class="out ob" @click="out(value.id)">&times;</div>
                                         </div>
@@ -32,7 +32,7 @@
             </div>
             <div class="my-video">
                 <div v-if="showBackG" class="backG"></div>
-                <video :srcObject.prop="videoStream" autoplay></video>
+                <video :srcObject.prop="videoStream" muted autoplay></video>
                 <div class="tools">
                     <div :class="{active:videoEnable}" class="t1 t" @click="switchMedia(0)"><span v-if="videoEnable"></span></div>
                     <div :class="{active:audioEnable}" class="t2 t" @click="switchMedia(1)"><span v-if="audioEnable"></span></div>
@@ -82,15 +82,13 @@
                 <hr>
                 <div class="waitList">
                     <ol class="waitListContent">
-                        <transition-group name="show">
-                            <li v-for="(value,key) in waitRoomStudentList" :key="'wait'+key">
-                                <div class="nameTag">{{key+1}}．ID:{{value.id}}</div>
-                                <div class="listButton">
-                                    <div class="ok divButton" @click="joinOk(value.id)">承認</div>
-                                    <div class="no divButton" @click="joinNo(value.id)">拒否</div>
-                                </div>
-                            </li>
-                        </transition-group>
+                        <li v-for="(value,key) in waitRoomStudentList" :key="'wait'+key">
+                            <div class="nameTag">{{key+1}}．{{value.name}}</div>
+                            <div class="listButton">
+                                <div class="ok divButton" @click="joinOk(value.id)">承認</div>
+                                <div class="no divButton" @click="joinNo(value.id)">拒否</div>
+                            </div>
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -103,7 +101,7 @@
                     <h2>ラクジュ</h2>
                 </div>
                 <div class="modal-body">
-                <div class="content-text"><div class="warring"></div>退出しますか？</div>
+                <div class="content-text"><div class="warring"></div>授業を終了しましょうか？</div>
                 <div class="okButton" @click="dialogOk">はい</div>
                 </div>
             </div>
@@ -116,13 +114,26 @@
                     <h2>ラクジュ</h2>
                 </div>
                 <div class="modal-body">
-                <div class="content-text"><div class="warring"></div>{{outName}}さんを強制退出させますか？</div>
+                <div class="content-text"><div class="warring"></div>{{getName(outName)}}さんを強制退出させますか？</div>
                 <div class="okButton" @click="sureOut">はい</div>
                 </div>
             </div>
         </div>
+        <div class="dialog" v-if="classEnd">
+            <div class="modal-content sys">
+                <div class="modal-header">
+                    <h2>ラクジュ</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="content-text">
+                        {{outMsg}}
+                    </div>
+                    <div class="okButton" @click="classOver">OK</div>
+                </div>
+            </div>
+        </div>
         <!-- video-check -->
-        <div v-if="onCheck" ref="leaveDialog" class="dialog">
+        <div :class="{showVideoList:onCheck}" ref="leaveDialog" class="videoList">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="closeButton" ref="js_Close_Dialog">&times;</span>
@@ -154,6 +165,8 @@
         props: ['user'],
         data(){
             return{
+                outMsg:"授業が終了しました。",
+                classEnd:false,
                 localStream:undefined,           //カメラ用
                 videoStream: undefined,          //画面上に表示するストリーム
                 share:false,                     //share flag
@@ -178,135 +191,164 @@
                 onCheck:false,                     //video check 中
                 onShowBigImg:false,
                 showImgUrl:'',
+                rejoinList:[],
             }
         },
         methods: {
             init(){
-
                 this.waitRoom = this.peer.joinRoom(`waitRoom${this.CLASS_CODE}`,{
                     mode:'sfu',
                 });
-
-                this.room = this.peer.joinRoom(this.CLASS_CODE,{
-                    mode: 'sfu',
-                    stream: this.videoStream,
-                });
-        
-                if(this.room!=undefined){
-                    // roomt on lisener
-                    this.room.once('open', () => {
-                        this.appendMsg(this.addElement('div',"授業開設しました。",'systemMsg',''));
-                    });
-
-                    this.room.on('peerJoin', peerId => {
-                        this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが入りました ===`,'systemMsg',''));
-                    });
-                
-                    this.room.on('stream', async stream => {
-                        console.log("Stream In");
-                        this.roomStudentList.forEach((item,index)=>{
-                            if(item.id==stream.peerId.substring(3)){
-                                this.roomStudentList[index].stream = stream;
-                            }
-                        })
-                    });
-            
-                    this.room.on('data', ({ data, src }) => {
-                        if(data.type==100){
-                            if(data.cmd==2){
-                                this.roomStudentList.forEach((item,index)=>{
-                                    if(item.id==data.id){
-                                        this.roomStudentList[index].handUp = data.value;
-                                    }
-                                });
-                            }
-                            if(data.cmd==1){
-                                this.roomStudentList.forEach((item,index)=>{
-                                    if(item.id==data.id){
-                                        this.roomStudentList[index].audio = data.value;
-                                    }
-                                });
-                            }
-                            if(data.cmd==10){
-                                this.roomStudentList.forEach((item,index)=>{
-                                    if(item.id==data.id){
-                                        this.roomStudentList[index].onSharing = data.value
-                                    }
-                                });
-                            }
-                            if(data.cmd==9){
-                                this.roomStudentList.push({"id":data.id,"stream":"","handUp":data.handUp,"video":data.video,"audio":data.audio,"noVideo":data.noVideo,"noAudio":data.noAudio,"live":false,"onSharing":data.onSharing});
-                            }
-                        }
-                        if(data.type==200){
-                            this.createMsg('/images/bubble.png',data.id,data.roll_flag,data.msg,'studentMsg',200);
-                        }
-                        if(data.type==1 || data.type==0){
-                            this.createMsg('/images/bubble.png',data.id,data.roll_flag,data,'studentMsg',100);
-                            
-                        }
-                    });
-            
-                    this.room.on('peerLeave', peerId => {
-                        this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが退室しました ===\n`,'systemMsg',''));
-                        this.roomStudentList.forEach((item,index)=>{
-                            if(item.id==peerId.substring(3)){
-                                this.roomStudentList.splice(index, 1);
-                            }
-                        })
-                    });
-            
-                    this.room.once('close', () => {
-                        window.close();
-                    });
-                }
-
                 if(this.waitRoom!=undefined){
                     this.waitRoom.on('data',({data,src}) => {
                         if(data.roll_flag ===this.user.roll_flag){
                             return
                         }
                         var has = false;
-                        this.waitRoomStudentList.forEach((item,index)=>{
+                        this.waitRoomStudentList.forEach((item)=>{
                             if(item.id==data.id){
-                                this.roomStudentList.splice(index, 1);
+                                // this.roomStudentList.splice(index, 1);
                                 has = true;
                             }
                         })
                         if(has){
                             return
                         }
-                        this.waitRoomStudentList.push({"id":data.id});
+                        this.waitRoomStudentList.push({"id":data.id,"name":data.name});
                     });
                     this.waitRoom.on('peerLeave',peerId =>{
                         this.deleteJoinList(peerId.substring(3));
                     });
                 }
+                this.joinRoom(this.videoStream);
+                this.room.once('open', () => {
+                    this.appendMsg(this.addElement('div',"授業開設しました。",'systemMsg',''));
+                });
+            },
+            joinRoom(stream){
+                this.room = this.peer.joinRoom(this.CLASS_CODE,{
+                    mode: 'sfu',
+                    stream: stream,
+                });
+                if(this.room!=undefined){
+                    this.room.on('peerJoin', peerId => {
+                        // this.roomStudentList.push({"id":peerId.substring(3),"name":"","stream":"","handUp":"","video":"","audio":"","noVideo":"","noAudio":"","live":false,"onSharing":false});
+                        // this.appendMsg(this.addElement('div',`=== ${peerId.substring(3)}さんが入りました ===`,'systemMsg',''));
+                    });
+                
+                    this.room.on('stream', async stream => {
+                        var has = false;
+                        this.roomStudentList.forEach((item)=>{
+                            if(item.id == stream.peerId.substring(3)){
+                                item.stream = stream;
+                                has = true;
+                            }
+                        })
+                        if(has){
+                            return
+                        }else{
+                            this.roomStudentList.push({"id":stream.peerId.substring(3),"name":"","stream":stream,"handUp":"","video":"","audio":"","noVideo":"","noAudio":"","live":false,"onSharing":false});
+                        }
+                    });
+            
+                    this.room.on('data', ({ data, src }) => {
+                        // console.log(data);
+                        if(data.type==100){
+                            if(data.cmd==2){
+                                this.roomStudentList.forEach((item)=>{
+                                    if(item.id==data.id){
+                                        item.handUp = data.value;
+                                    }
+                                });
+                            }
+                            if(data.cmd==1){
+                                this.roomStudentList.forEach((item)=>{
+                                    if(item.id==data.id){
+                                        item.audio = data.value;
+                                    }
+                                });
+                            }
+                            if(data.cmd==8){
+                                // console.log(this.shareStream);
+                                this.rejoinRoom(this.videoStream);
+                            }
+                            if(data.cmd==10){
+                                this.roomStudentList.forEach((item)=>{
+                                    if(item.id==data.id){
+                                        item.onSharing = data.value
+                                    }
+                                });
+                            }
+                            if(data.cmd==9){
+                                var itemSt = this.roomStudentList.find((item)=>{
+                                    item.id == data.id;
+                                })
+                                if(itemSt == undefined){
+                                    this.roomStudentList.push({"id":data.id,"name":data.name,"stream":"","handUp":data.handUp,"video":data.video,"audio":data.audio,"noVideo":data.noVideo,"noAudio":data.noAudio,"live":false,"onSharing":data.onSharing});
+                                }else{
+                                    itemSt.name = data.name;
+                                    itemSt.handUp = data.handUp;
+                                    itemSt.video = data.video;
+                                    itemSt.audio = data.audio;
+                                    itemSt.noVideo = data.noVideo;
+                                    itemSt.noAudio = data.noAudio;
+                                    itemSt.onSharing = data.onSharing;
+                                }
+                                // this.roomStudentList.push({"id":data.id,"name":data.name,"stream":"","handUp":data.handUp,"video":data.video,"audio":data.audio,"noVideo":data.noVideo,"noAudio":data.noAudio,"live":false,"onSharing":data.onSharing});
+                                this.appendMsg(this.addElement('div',`=== ${data.name}さんが入りました ===`,'systemMsg',''));
+                            }
+                        }
+                        if(data.type==200){
+                            this.createMsg('/images/bubble.png',data.name,data.roll_flag,data.msg,'studentMsg',200);
+                        }
+                        if(data.type==1 || data.type==0){
+                            this.createMsg('/images/bubble.png',data.name,data.roll_flag,data,'studentMsg',100);
+                            
+                        }
+                    });
+            
+                    this.room.on('peerLeave', peerId => {
+                        this.appendMsg(this.addElement('div',`=== ${this.getName(peerId.substring(3))}さんが退室しました ===\n`,'systemMsg',''));
+                        this.deleteStudentList(peerId.substring(3));
+                        this.roomStudentList.forEach((item)=>{
+                            if(item.id==peerId.substring(3)){
+                                if(item.live){
+                                    this.showBackG = true;
+                                }
+                            }
+                        })
+                    });
+            
+                    // this.room.once('close', () => {
+                    //     // window.close();
+                    // });
+                }
             },
             switchMedia(media){
                 //video
                 if(media===0){
-                    if(this.noVideo){
+                    if(this.videoStream.getVideoTracks()[0] == undefined){
                         return
                     }
                     if(this.videoStream.getVideoTracks()[0].enabled){
                         //close the video
                         this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                        // console.log(this.videoStream.getVideoTracks()[0]);
                         this.showBackG = true;
                         this.videoEnable = true;
-                        this.room.send({"type":100,"cmd":3,"value":true});
+                        // this.room.send({"type":100,"cmd":3,"value":true});
                     }else{
                         //open the video
                         // backG.style.display = 'none';
                         this.videoStream.getVideoTracks().forEach( track => (track.enabled = true));
                         this.showBackG = false;
                         this.videoEnable = false;
-                        this.room.send({"type":100,"cmd":3,"value":false});
+                        // this.room.send({"type":100,"cmd":3,"value":false});
                     }
                 }
                 //mic
                 if(media===1){
-                    if(this.noAudio){
+                    if(this.videoStream.getAudioTracks()[0]==undefined){
                         return
                     }
                     if(this.videoStream.getAudioTracks()[0].enabled){
@@ -319,53 +361,70 @@
                 }
             },
             onScreenShare(){
+                // if(this.noVideo){
+                //     return
+                // }
                 if(this.share){
                     if(this.showStudentVideo){
                         this.shareStream.getVideoTracks()[0].stop();
                         this.showLocalVideo();
-                        return;
+                        return
                     }
                     this.videoStream.getVideoTracks()[0].stop();
-                    if(this.videoStream.getAudioTracks()[0]!=undefined){
-                        this.videoStream.getAudioTracks()[0].stop();
-                    }
                     this.showLocalVideo();
                 }else{
                     navigator.mediaDevices.getDisplayMedia({ 
                         video: { width: 1024, height: 760 },
-                        audio:true,
                     }).then(stream => {
-                        this.roomStudentList.forEach((item,index)=>{
-                            this.roomStudentList[index].live = false;
-                            //学生画面を表示しているにしない
-                            this.showStudentVideo = false;
+                        this.roomStudentList.forEach((item)=>{
+                            if(item.live){
+                                item.live = false
+                            }
                         })
+                        this.showStudentVideo = false;
                         this.share=true;
                         this.showBackG = false;
-                        if(this.noVideo){
-                            this.room.send({"type":100,"cmd":3,"value":false});
-                        }
                         stream.getVideoTracks()[0].addEventListener('ended', () => {this.showLocalVideo()});
-                        this.shareStream = stream;
-                        if(!this.videoStream.getVideoTracks()[0].enabled){
-                            this.videoStream=stream;
-                            this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                        var shareStream;
+                        if(this.videoStream.getAudioTracks()[0]==undefined){
+                            shareStream = new MediaStream([stream.getVideoTracks()[0]]);
                         }else{
-                            this.videoStream=stream;
+                            shareStream = new MediaStream([stream.getVideoTracks()[0],this.videoStream.getAudioTracks()[0]]);
                         }
-                        this.room.replaceStream(this.videoStream);
+                        this.shareStream = shareStream;
+                        if(this.noVideo){
+                            this.videoStream = this.shareStream;
+                            this.room.send({"type":100,"id":this.user.id,"cmd":8});
+                        }else{
+                            if(!this.videoStream.getVideoTracks()[0].enabled){
+                                this.videoStream=shareStream;
+                                this.videoStream.getVideoTracks().forEach( track => (track.enabled = false));
+                            }else{
+                                this.videoStream=shareStream;
+                            }
+                            this.room.replaceStream(this.videoStream);
+                        }
                     }).catch(e=>{console.log("err:"+e)});
                 }
             },
+            rejoinRoom(stream){
+                this.room.close();
+                this.joinRoom(stream);
+            },
             showLocalVideo(){
-                console.log("ok");
+                // console.log("ok");
                 this.share=false;
                 if(this.showStudentVideo){
-                    return
+                    this.shareStream = undefined;
+                    return;
                 }
                 if(this.noVideo){
                     this.showBackG = true;
                     this.room.send({"type":100,"cmd":3,"value":true});
+                    this.videoStream = this.localStream;
+                    this.room.replaceStream(this.videoStream);
+                    this.shareStream = undefined;
+                    return
                 }
                 if(!this.videoStream.getVideoTracks()[0].enabled){
                     this.videoStream = this.localStream;
@@ -385,13 +444,13 @@
                 if(this.$refs.localText.innerText != ''){
                     var text = this.$refs.localText.innerText;
                     this.room.send(this.jsonMsg(this.user.id,text));
-                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,text,'teacherMsg',200);
+                    this.createMsg('/images/bubble.png',this.user.name,this.user.roll_flag,text,'teacherMsg',200);
                     this.$refs.localText.innerText = '';
                 }
                 if(this.selectedFiles.length > 0){
-                    this.selectedFiles.forEach((item,index)=>{
-                        this.room.send(this.selectedFiles[index]);
-                        this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,this.selectedFiles[index],'teacherMsg',100);
+                    this.selectedFiles.forEach((item)=>{
+                        this.room.send(item);
+                        this.createMsg('/images/bubble.png',this.user.name,this.user.roll_flag,item,'teacherMsg',100);
                     })
                     this.selectedFiles=[]
                 }
@@ -400,7 +459,11 @@
                 this.diaglogFlag = true;
             },
             dialogOk(){
-                this.room.close();
+                this.room.send({"type":100,"cmd":33});
+                this.classEnd = true;
+            },
+            classOver(){
+                window.close();
             },
             onClickVideo:function(e){
                 if (e.target == this.$refs.leaveDialog || e.target == this.$refs.js_Close_Dialog ||e.target == this.$refs.bigImg) {
@@ -524,9 +587,9 @@
             },
             handDown(id){
                 this.room.send({"type":100,"id":id,"cmd":2,"value":false});
-                this.roomStudentList.forEach((item,index)=>{
+                this.roomStudentList.forEach((item)=>{
                     if(item.id==id){
-                        this.roomStudentList[index].handUp = false;
+                        item.handUp = false;
                     }
                 })
             },
@@ -534,19 +597,20 @@
                 this.onCheck = true;
             },
             mute(id){
-                this.roomStudentList.forEach((item,index)=>{
+                this.roomStudentList.forEach((item)=>{
                     if(item.id==id){
-                        if(this.roomStudentList[index].audio){
-                            this.roomStudentList[index].audio = false;
+                        if(item.audio){
+                            item.audio = false;
                             this.room.send({"type":100,"id":id,"cmd":1,"value":false});
                         }else{
-                            this.roomStudentList[index].audio = true;
+                            item.audio = true;
                             this.room.send({"type":100,"id":id,"cmd":1,"value":true});
                         }
                     }
                 })
             },
-            out(id){
+            out(id){  
+                // this.outName = this.getName(id);
                 this.outName = id;
                 this.adOut = true;
             },
@@ -555,61 +619,48 @@
                 this.room.send({"type":100,"id":this.outName,"cmd":0});
             },
             jsonMsg(id,text){
-                return {"type":200,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
+                return {"type":200,"name":this.user.name,"id":id,"roll_flag":this.user.roll_flag,"msg":text};
             },
             switchVideoStream(id){
                 //表示したいVideoを探す
-                this.roomStudentList.forEach((item,index)=>{
+                this.roomStudentList.forEach((item)=>{
                     //表示したいVideoのIDがあった
                     if(item.id==id){
                         //クリックしたVideoと現在表示されるVideo一致
-                        if(this.videoStream == this.roomStudentList[index].stream){
+                        if(item.live){
                             //学生リストでVideoLive状態(表示されてるか)をOFFにする
-                            this.roomStudentList[index].live = false;
+                            item.live = false;
                             if(this.share){
                                 this.videoStream = this.shareStream;
                             }else{
                                 //自分のVideoを表示する
-                            this.videoStream = this.localStream;
-                            }
-                            //自分のカメラを取得できなかった
-                            if(this.noVideo){
-                                //カメラなしの時のBackGroundを表示
+                                this.videoStream = this.localStream;
                                 this.showBackG = true;
                             }
                             //学生画面を表示しているにしない
                             this.showStudentVideo = false;
                         }else{//クリックしたVideoと現在表示されるVideo一致しない
                             //クリックしたVideoを表示する
-                            this.videoStream = this.roomStudentList[index].stream;
+                            // var stream 
+                            if(!this.noAudio){
+                                this.videoStream = new MediaStream([item.stream.getVideoTracks()[0],this.videoStream.getAudioTracks()[0]]);
+                            }else{
+                                this.videoStream = new MediaStream([item.stream.getVideoTracks()[0]]);
+                            }
+                            // this.videoStream = item.stream;
                             //学生リストでVideoLive状態(表示されてるか)をOnにする
-                            this.roomStudentList[index].live = true;
+                            item.live = true;
                             //カメラなしの時のBackGroundを非表示
                             this.showBackG = false;
                             //学生画面を表示しているにする
                             this.showStudentVideo = true;
                         }
-                        //学生側に(BackGround表示するか)をsysMsg送信
-                        this.room.send({"type":100,"cmd":3,"value":this.showBackG});
                         //表示したVideoをRoomに送信
-                        this.room.replaceStream(this.videoStream);
+                        // console.log(this.videoStream);
                     }
                 })
-            },
-            getMock(){
-                var canvas = document.createElement('canvas');
-                this.videoStream = canvas.captureStream();
-                this.localStream = canvas.captureStream();
-                // canvas.width = 1024;
-                // canvas.height = 760;
-                // var ctx = canvas.getContext("2d");
-                // var img = new Image();
-                // img.src = "/images/user.png";
-                // img.onload = ()=>{
-                //     ctx.drawImage(img,canvas.width/6,canvas.height/12,canvas.width/6*4,canvas.height/6*5);
-                //     this.videoStream = canvas.captureStream();
-                //     this.localStream = canvas.captureStream();
-                // }
+                this.room.send({"type":100,"cmd":3,"value":this.showBackG});
+                this.room.replaceStream(this.videoStream);
             },
             showFileSelectWindow(e){
                 if(this.selectedFiles.length>=10){
@@ -631,7 +682,7 @@
                 if(file.type.split("/")[0]=="image"){
                     type = 1
                 }
-                this.selectedFiles.push({"type":type,"file":file,"fileName":file.name,"fileUrl":fileUrl,"id":this.user.id,"roll_flag":this.user.roll_flag});
+                this.selectedFiles.push({"type":type,"file":file,"fileName":file.name,"fileUrl":fileUrl,"name":this.user.name,"roll_flag":this.user.roll_flag});
             },
             previewFile(file){
                 // FileReaderオブジェクトを作成
@@ -681,6 +732,22 @@
             showBigImg(url){
                 this.showImgUrl = url;
                 this.onShowBigImg = true;
+            },
+            getName(id){
+                var name = "";
+                this.roomStudentList.forEach((item) => {
+                    if(item.id == id){
+                        name = item.name;
+                    }
+                });
+                return name;
+            },
+            deleteStudentList(id){
+                this.roomStudentList.forEach((item,index)=>{
+                    if(item.id==id){
+                        this.roomStudentList.splice(index, 1);
+                    }
+                })
             }
         },
         created(){
@@ -694,6 +761,7 @@
             });
         },
         mounted(){
+
             navigator.mediaDevices.getUserMedia({
                 video:{ width: 1024, height: 760 },
                 audio: true,
@@ -725,12 +793,9 @@
                     navigator.mediaDevices.getUserMedia({
                         audio:true,
                     }).then(stream => {
-                        var canvas = document.createElement('canvas');
-                        var canvasStream = canvas.captureStream();
-                        canvasStream.addTrack(stream.getAudioTracks()[0]);
-                        this.localStream = canvasStream;
-                        this.videoStream = canvasStream;
                         this.noVideo = true;
+                        this.localStream = stream;
+                        this.videoStream = stream;
                         this.$refs.js_messages.append(this.addElement('div',"カメラが取得できませんでした。",'systemMsg',''));
                         if(this.peer.open){
                             this.init();
@@ -738,15 +803,9 @@
                             this.peer.on('open',this.init);
                         }
                     }).catch(e=>{
-                        this.noVideo = true;
-                        this.noAudio = true;
-                        this.getMock();
-                        this.$refs.js_messages.append(this.addElement('div',"カメラとマイクが取得できませんでした。",'systemMsg',''));
-                        if(this.peer.open){
-                            this.init();
-                        }else{
-                            this.peer.on('open',this.init);
-                        }
+                        this.outMsg = "授業開設を失敗しました、カメラとマイクどちらが有効にしてください";
+                        this.classEnd = true;
+                        // this.$refs.js_messages.append(this.addElement('div',"授業開設失敗、カメラとマイクどちらが有効にしてください",'systemMsg',''));
                     });
                 });
             });
@@ -760,6 +819,20 @@
 </script>
 
 <style lang="css">
+.showVideoList{
+    display: flex!important;
+}
+.videoList{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
 .img-fa img{
     cursor: zoom-out;
 }
@@ -963,16 +1036,16 @@ img{
     background-image: url(/images/folder.svg);
 }
 .videoOn{
-    background-color: green;
-}
-.videoOn:hover{
-    background-color:rgb(0, 189, 0)!important;
-}
-.micOn{
     background-color: rgb(180, 0, 0);
 }
-.micOn:hover{
+.videoOn:hover{
     background-color: rgb(255, 0, 0)!important;
+}
+.micOn{
+    background-color: green;
+}
+.micOn:hover{
+    background-color:rgb(0, 189, 0)!important;
 }
 .abRight{
     right: 50px!important;
@@ -1182,6 +1255,7 @@ h1{
 }
 .my-video video{
     width: 100%;
+    max-height: 700px;
     /* border: 1px solid silver; */
     position: absolute;
     top: 0;
@@ -1275,7 +1349,7 @@ h1{
     width: 100%;
 }
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
     height: 8px;
     background-color: transparent;
 }
@@ -1554,25 +1628,25 @@ h2{
 .waitList {
     height: 80%;
     /* margin: 0 5px; */
-    padding: 0 0 3px 0;
+    padding: 0 0 3px 5px;
 }
 .waitListContent {
     height: 100%;
     /* padding: 5px 20px; */
     overflow: overlay;
     font-size: 24px;
-    margin: 3px 10px;
+    /* margin: 3px 10px; */
 }
 .waitListContent li{
     margin: 5px 0;
     display: flex;
     position: relative;
+    width: 100%;
+    padding: 0 5px;
 }
 .listButton {
     display: flex;
-    position: absolute;
-    right: 0;
-    width: 36%;
+    margin: 0 0 0 auto;
 }
 .divButton{
     margin:0 5px;
