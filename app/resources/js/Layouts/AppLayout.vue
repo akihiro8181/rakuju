@@ -104,18 +104,25 @@
                     </div>
                     <div v-if="$page.user.roll_flag == 'ad'">
                         <in-charge-list />
-
-                        <jet-nav-link :href="route('schoolinformation')" :active="$page.currentRouteName == 'schoolinformation'">
-                            School-Information
-                        </jet-nav-link>
-
-                        <jet-nav-link :href="route('manageuser')" :active="$page.currentRouteName == 'manageuser'">
-                            Manage-User
-                        </jet-nav-link>
-
-                        <jet-nav-link :href="route('manageclasswork')" :active="$page.currentRouteName == 'manageclasswork'">
-                            Manage-Classwork
-                        </jet-nav-link>
+                        
+                        <div>
+                            <p>学校管理</p>
+                            <div>
+                                <jet-nav-link :href="route('schoolinformation')" :active="$page.currentRouteName == 'schoolinformation'">
+                                    学校情報
+                                </jet-nav-link>
+                            </div>
+                            <div>
+                                <jet-nav-link :href="route('manageuser')" :active="$page.currentRouteName == 'manageuser'">
+                                    ユーザー管理
+                                </jet-nav-link>
+                            </div>
+                            <div>
+                                <jet-nav-link :href="route('manageclasswork')" :active="$page.currentRouteName == 'manageclasswork'">
+                                    授業管理
+                                </jet-nav-link>
+                            </div>
+                        </div>
 
 
                     </div>

@@ -7,12 +7,13 @@
                         <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
                             <div class="text-2xl">
                                 学校情報
+                                <div v-if="$page.user.roll_flag == 'ad'" class="flex space-x-4">
+                                    <jet-button @click.native="showUpdateForm" class="fas fa-cog">
+                                        
+                                    </jet-button>
+                                </div>
                             </div>
-                            <div v-if="$page.user.roll_flag == 'ad'" class="flex space-x-4">
-                                <jet-button @click.native="showUpdateForm">
-                                    ⚙
-                                </jet-button>
-                            </div>
+                            
 
                             <div v-if="show_update_form == true">
                                 <update-information-form :school="$page.school" />
@@ -33,9 +34,7 @@
 
                         <div>
                             <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                                {{$page.school}}<br>
-                                ---<br>
-                                {{$page.user}}
+
                             </div>
                         </div>
 

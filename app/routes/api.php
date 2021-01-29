@@ -11,6 +11,7 @@ use App\Http\Controllers\API\DownloadClassworkTaskFile;
 use App\Http\Controllers\API\DeleteClassworkTaskFile;
 use App\Http\Controllers\API\AddUser;
 use App\Http\Controllers\API\UpdateUser;
+use App\Http\Controllers\API\DeleteUser;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,3 +40,4 @@ Route::middleware('auth:sanctum')->delete('/storage/{classwork_task}/{file_name}
 // manageUser関連
 Route::middleware('auth:sanctum')->post('/add-user/', AddUser::class);
 Route::middleware('auth:sanctum')->put('/update-user/{user}', UpdateUser::class)->where('user', '[0-9]+');
+Route::middleware('auth:sanctum')->delete('/delete-user/{user}', DeleteUser::class)->where('user', '[0-9]+');

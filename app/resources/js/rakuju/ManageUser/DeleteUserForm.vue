@@ -1,42 +1,52 @@
 <template>
 
-    <rak-modal-form :formName="updateModalFormName" :show="ModalFlag" @close="closeUpdateUserModal()" @submitted="updateUser">
+    <rak-modal-form :formName="deleteModalFormName" :show="ModalFlag" @close="closeDeleteUserModal()" @submitted="deleteUser">
         <template #title>
-            ユーザー情報の編集
+            ユーザーの削除
         </template>
 
         <template #content>
-            
+            <div>
+                以下のユーザーを削除しますか？
+                <div class="flex flex-col py-3">
+                    <div class="flex-auto py-0.5">
+                        ユーザ名：{{delete_user.name}}
+                    </div>
+                    <div class="flex-auto py-0.5">
+                        ログインナンバー：{{delete_user.login_number}}
+                    </div>
+                </div>
+            </div>
         </template>
         
         <template #form id="modalForm">
 
             <!-- userName -->
-            <div class="col-span-5">
+            <!-- <div class="col-span-5">
                 <jet-label for="name" value="ユーザ名" />
                 <jet-input id="name" type="text" class="mt-1 block w-full" v-model="form.name" autocomplete="name" />
                 <jet-input-error :message="form.error('name')" class="mt-2" />
-            </div>
+            </div> -->
 
             <!-- rollFlag -->
-            <div class="col-span-5">
+            <!-- <div class="col-span-5">
                 <jet-label for="roll_flag" value="役職" />
-                <select v-model="form.roll_flag" id="roll_flag" class="form-select rounded-md shadow-sm">
+                <select v-model="form.roll_flag" id="roll_flag">
                     <option value="ad"> 管理者 </option>
                     <option value="te"> 教員 </option>
                     <option value="st"> 生徒 </option>
-                </select>
+                </select> -->
                 <!-- <jet-input id="roll_flag" type="text" class="mt-1 block w-full" v-model="form.roll_flag" /> -->
                 <!-- <jet-input-error :message="form.error('roll_flag')" class="mt-2" /> -->
-            </div>
+            <!-- </div> -->
 
 
             <!-- loginNumber-->
-            <div class="col-span-5">
+            <!-- <div class="col-span-5">
                 <jet-label for="login_number" value="ログインナンバー" />
                 <jet-input id="login_number" type="text" class="mt-1 block w-full" v-model="form.login_number" />
                 <jet-input-error :message="form.error('login_number')" class="mt-2" />
-            </div>
+            </div> -->
 
             <!-- loginNumber-->
             <!-- <div class="col-span-5">
@@ -49,13 +59,14 @@
 
 
         <template #footer>
-            <jet-secondary-button @click.native="closeUpdateUserModal()">
+            <jet-secondary-button @click.native="closeDeleteUserModal()">
                 閉じる
             </jet-secondary-button>
 
-            <jet-button class="ml-2" form="updateModalForm">
-                登録
-            </jet-button>
+            <jet-danger-button class="ml-2" @click.native="deleteUser()" form="deleteModalForm">
+                削除
+            </jet-danger-button>
+
         </template>
 
     </rak-modal-form>
@@ -86,46 +97,30 @@
 
         computed: {
             ModalFlag: function () {
-                if(this.update_users === undefined){
-                    // form 初期化
-                    this.form.name = '';
-                    this.form.roll_flag = '';
-                    this.form.login_number = '';
-                    this.form.password = '';
-                }else{
-                    this.form.name = this.update_users.name;
-                    this.form.roll_flag = this.update_users.roll_flag;
-                    this.form.login_number = this.update_users.login_number;
-                    // console.log(this.form.login_number);
+                if(this.delete_users !== undefined){
+                    this.delete_user = this.delete_users;
                 }
                 // console.log(this.form.name);
                 // `this` は vm インスタンスを指します
-               return this.update_modal_show_flag = this.show
+               return this.delete_modal_show_flag = this.show
             },
 
         },
 
-        props:['show','update_users'],
+        props:['show','delete_users'],
 
         data() {
             return {
-                updateModalFormName:"updateModalForm",
+                deleteModalFormName:"deleteModalForm",
                 update_modal_show_flag: false,
                 delete_modal_show_flag: false,
 
+                delete_user:'',
 
                 form: this.$inertia.form({
-                    '_method': 'PUT',
-                    name:'',
-                    roll_flag:'',
-                    login_number:'',
-                    password:'',
-                    // name:this.UpdateUsers.name,
-                    // roll_flag:this.UpdateUsers.roll_flag,
-                    // login_number:this.UpdateUsers.login_number,
-                    // password:this.UpdateUsers.password,
+                    '_method': 'DELETE',
                 }, {
-                    bag: 'updateUser',
+                    bag: 'deleteUser',
                     resetOnSuccess: false,
                 }),
 
@@ -134,31 +129,34 @@
 
         methods: {
 
-            showUpdateUserModal() {
+            showDeleteUserModal() {
                 // this.#emit('add')
-                return this.update_modal_show_flag = true;
+                return this.delete_modal_show_flag = true;
             },
             
-            closeUpdateUserModal(){
+            closeDeleteUserModal(){
+
+                // form 初期化
+                this.delete_user = '';
+                
                 this.$emit('close');
                 // return this.add_modal_show_flag = false;
             },
-            updateUser() {
-                console.log("updateUser Start");
+            deleteUser() {
+                console.log("deleteUser Start");
                 // console.log(this.form.name);
-                this.form.put('/api/update-user/' + this.update_users.id, {
+                
+                this.form.delete('/api/delete-user/' + this.delete_user.id, {
                     preserveScroll: true
                 });
-                this.closeUpdateUserModal();
-                console.log("updateUser End");
+                this.closeDeleteUserModal();
+                console.log("deteleUser End");
             }
         },
 
         created() {
-            console.log(this.update_users);
+            console.log(this.delete_users);
         },
 
     }
 </script>
-
-                

@@ -1,8 +1,6 @@
 <template>
     <rak-base-table>
 
-
-
         <template #actions>
             <jet-button @click.native="showAddUserModal">
                 ユーザ追加
@@ -67,7 +65,7 @@
                                             </button>
                                         </div>
                                         <div class="flex-auto py-0.5 hover:bg-blue-300">
-                                            <button class="w-full items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
+                                            <button @click="showDeleteUserModal(user)" class="w-full items-center text-sm font-medium text-gray-500 focus:outline-none  transition duration-70 ease-in-out ">
                                                 削除
                                             </button>
                                         </div>
@@ -113,9 +111,9 @@
             <update-user-form :show="update_modal_show_flag" :update_users="update_users" @close='showUpdateUserModal()' />
         </template>
 
-
         <template #delete_modal>
-            <rak-modal-form :show="delete_modal_show_flag" @close="delete_modal_show_flag = false">
+            <delete-user-form :show="delete_modal_show_flag" :delete_users="delete_users" @close='showDeleteUserModal()' />
+            <!-- <rak-modal-form :show="delete_modal_show_flag" @close="delete_modal_show_flag = false">
                 <template #title>
                     Delete User
                 </template>
@@ -131,7 +129,7 @@
                         はい
                     </jet-danger-button>
                 </template>
-            </rak-modal-form>
+            </rak-modal-form> -->
         </template>
         
 
@@ -155,7 +153,9 @@
     import JetDialogModal from './../../Jetstream/DialogModal'
     import AddUserForm from '../../rakuju/ManageUser/AddUserForm'
     import UpdateUserForm from '../../rakuju/ManageUser/UpdateUserForm'
+    import DeleteUserForm from '../../rakuju/ManageUser/DeleteUserForm'
     import Paginate from 'vuejs-paginate';
+
 
 
     export default {
@@ -174,6 +174,7 @@
             JetDialogModal,
             AddUserForm,
             UpdateUserForm,
+            DeleteUserForm,
             Paginate,
         },
 
@@ -253,6 +254,7 @@
 
                 user_list:[],
                 update_users:[],
+                delete_users:[],
 
                 add_modal_show_flag: false,
                 update_modal_show_flag:false,
@@ -274,8 +276,9 @@
                 this.update_modal_show_flag = this.update_modal_show_flag == true ? false : true
             },
 
-            showDeleteUserModal() {
-                this.delete_modal_show_flag = true
+            showDeleteUserModal(user) {
+                this.delete_users = user;
+                this.delete_modal_show_flag= this.delete_modal_show_flag == true ? false : true
             },
             
             clickCallback: function (pageNum) {
