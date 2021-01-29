@@ -30,7 +30,7 @@
                             <div class="mt-6 p-2 px-5 bg-gray-200 border border-black">
                                 <form class="flex flex-wrap items-center" enctype="multipart/form-data">
                                     該当課題：
-                                    <div v-for="file_name in parseFileNames($page.file_name[0])" :key="file_name+'1'">
+                                    <div v-for="(file_name, index) in homework_file_name_array" :key="index">
                                         <div class="ml-1">
                                             {{file_name}},
                                         </div>
@@ -109,10 +109,30 @@
         },
 
         computed: {
+            homework_file_name_array() {
+                const homework_file_name_array = this.$page.file_name;  // 該当課題の名前の配列
+
+                let homework_files = [];    // 該当課題の名前一覧
+                homework_file_name_array.forEach(file_name_str => {
+                    file_name_str.split('|').forEach(file_name => {
+                        homework_files.push(file_name);
+                    });
+                });
+                return homework_files;
+            },
+
             evaluation_str() {
                 const str = ["未提出", "一部提出済み", "提出済み"];
                 const upload_files = this.$page.files; // 提出ファイルの名前一覧
-                const homework_files = this.$page.file_name[0].split('|');  // 該当課題の名前一覧
+
+                const homework_file_name_array = this.$page.file_name;  // 該当課題の名前の配列
+
+                let homework_files = [];    // 該当課題の名前一覧
+                homework_file_name_array.forEach(file_name_str => {
+                    file_name_str.split('|').forEach(file_name => {
+                        homework_files.push(file_name);
+                    });
+                });
 
                 let count = 0;  // 提出済みのファイル数
 
