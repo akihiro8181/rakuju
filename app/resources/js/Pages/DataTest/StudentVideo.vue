@@ -117,7 +117,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="content-text">
-                        強制退出されました。
+                        {{outMsg}}
                     </div>
                     <div class="okButton" @click="dialogOk">OK</div>
                 </div>
@@ -188,7 +188,7 @@
                 showImgUrl:'',
                 reJoinList:[],
                 classMete:[],
-                outMsg:"",
+                outMsg:"強制退出されました。",
             }
         },
         methods: {
@@ -329,6 +329,8 @@
                                 this.room.send({"type":100,"cmd":8,"value":true,"roll_flag":this.user.roll_flag});
                             }
                             if(data.cmd == 33){
+                                this.outMsg = "授業を終了しました。"
+                                this.room.close();
                                 this.classEnd = true;
                             }
                             if(data.cmd == 99 || data.cmd==9){
