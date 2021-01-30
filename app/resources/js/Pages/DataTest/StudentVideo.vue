@@ -644,7 +644,7 @@
                     this.handUp = false;
                 }else{
                     this.handUp = true;
-                    this.createMsg('/images/bubble.png',this.user.id,this.user.roll_flag,"🖐",'studentMsg',200);
+                    this.createMsg('/images/bubble.png',this.user.name,this.user.roll_flag,"🖐",'studentMsg',200);
                     this.room.send(this.jsonMsg(this.user.id,"🖐"));
                 }
                 this.room.send(this.jsonCmd(this.user.id,2));
